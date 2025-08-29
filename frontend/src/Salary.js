@@ -161,8 +161,8 @@ const Salary = ({ user }) => {
             <tbody>
               {type === 'parttime' ? (
                 <>
-                  <tr><td>Tổng giờ ngày</td><td>{Math.ceil(result.totalDay)}</td></tr>
-                  <tr><td>Tổng giờ đêm</td><td>{Math.ceil(result.totalNight)}</td></tr>
+                  <tr><td>Tổng giờ ngày</td><td>{Number(result.totalDay).toFixed(1)}</td></tr>
+                  <tr><td>Tổng giờ đêm</td><td>{Number(result.totalNight).toFixed(1)}</td></tr>
                   <tr><td>Giá giờ ngày</td><td>{result.day_shift_rate}</td></tr>
                   <tr><td>Giá giờ đêm</td><td>{result.night_shift_rate}</td></tr>
                   <tr><td>Phụ cấp</td><td>{Number(allowance || 0).toLocaleString('vi-VN')}</td></tr>
@@ -171,8 +171,8 @@ const Salary = ({ user }) => {
                     <td><b>Tổng lương</b></td>
                     <td><b>{
                       (
-                        Math.ceil(result.totalDay) * Number(result.day_shift_rate || 0) +
-                        Math.ceil(result.totalNight) * Number(result.night_shift_rate || 0) +
+                        Number(result.totalDay) * Number(result.day_shift_rate || 0) +
+                        Number(result.totalNight) * Number(result.night_shift_rate || 0) +
                         Number(allowance || 0) +
                         Number(bonus || 0)
                       ).toLocaleString('vi-VN')

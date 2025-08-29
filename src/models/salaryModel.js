@@ -10,36 +10,45 @@ async function getWorkingHours(user_id, month, year, night_shift_start, night_sh
   // night_shift_start, night_shift_end dạng 'HH:mm:ss' hoặc 'HH:mm'
   const [nightStartHour, nightStartMin] = night_shift_start.split(':').map(Number);
   const [nightEndHour, nightEndMin] = night_shift_end.split(':').map(Number);
+  const NIGHT_START = 21;
   for (const row of result.rows) {
     let inTime = new Date(row.check_in);
     let outTime = new Date(row.check_out);
-    let cur = new Date(inTime);
-    while (cur < outTime) {
-      let next = new Date(cur);
-      next.setHours(cur.getHours() + 1, 0, 0, 0);
-      if (next > outTime) next = new Date(outTime);
-      let hour = cur.getHours();
-      let min = cur.getMinutes();
-      let isNight = false;
-      if (nightStartHour === nightEndHour && nightStartMin === nightEndMin) {
-        // Nếu giờ bắt đầu = giờ kết thúc, không có ca đêm
-        isNight = false;
-      } else if (nightStartHour < nightEndHour || (nightStartHour === nightEndHour && nightStartMin < nightEndMin)) {
-        // Ca đêm không qua 0h
-        isNight = (hour > nightStartHour || (hour === nightStartHour && min >= nightStartMin)) &&
-                  (hour < nightEndHour || (hour === nightEndHour && min < nightEndMin));
-      } else {
-        // Ca đêm qua 0h (ví dụ 21:00 - 04:00)
-        isNight = (hour > nightStartHour || (hour === nightStartHour && min >= nightStartMin)) ||
-                  (hour < nightEndHour || (hour === nightEndHour && min < nightEndMin));
-      }
-      let duration = (next - cur) / 3600000;
-      if (isNight) totalNight += duration;
-      else totalDay += duration;
-      cur = next;
+    let inHour = inTime.getHours() + inTime.getMinutes() / 60;
+    let outHour = outTime.getHours() + outTime.getMinutes() / 60;
+    // Nếu out < in thì out += 24 (qua ngày)
+    if (outHour < inHour) outHour += 24;
+    // Tổng số phút làm việc
+    let totalMinutes = (outHour - inHour) * 60;
+    // Làm tròn lên 0.1h
+    let totalDecimal = Math.ceil(totalMinutes / 6) / 10; // 6 phút = 0.1h
+
+    // Giờ sau 21h
+    let after21h = 0;
+    if (inHour >= NIGHT_START) {
+      // Ca bắt đầu sau 21h: toàn bộ giờ là sau 21h
+      after21h = totalDecimal;
+    } else if (outHour > NIGHT_START) {
+      // Ca kết thúc sau 21h: chỉ tính phần từ 21h đến out
+      let after21Minutes = (outHour - NIGHT_START) * 60;
+      after21h = Math.ceil(after21Minutes / 6) / 10;
+      if (after21h > totalDecimal) after21h = totalDecimal; // không vượt quá tổng ca
     }
+    // Giờ ngày = tổng - sau 21h
+    let dayHour = totalDecimal - after21h;
+    if (dayHour < 0) dayHour = 0;
+    totalNight += after21h;
+    totalDay += dayHour;
   }
-  return { totalDay, totalNight };
+  // Làm tròn về bội số 0.25h (15 phút), quy tắc 7-8
+  // Làm tròn về 1 chữ số thập phân (0.1h)
+  function roundToOneDecimal(hour) {
+    return Math.round(hour * 10) / 10;
+  }
+  return {
+    totalDay: roundToOneDecimal(totalDay),
+    totalNight: roundToOneDecimal(totalNight)
+  };
 }
 
 // Lấy mức lương từng user (manager/admin gán)
