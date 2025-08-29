@@ -1,0 +1,23 @@
+const express = require('express');
+const router = express.Router();
+const attendanceController = require('../controllers/attendanceController');
+const requireLogin = require('../middlewares/requireLogin');
+
+router.use(requireLogin);
+
+// Chấm công in
+router.post('/checkin', attendanceController.checkIn);
+// Chấm công out
+router.post('/checkout', attendanceController.checkOut);
+// Lấy lịch sử chấm công của chính mình
+router.get('/my', attendanceController.getMyAttendance);
+// Lấy lịch sử chấm công theo ngày
+router.get('/my-by-date', attendanceController.getMyAttendanceByDate);
+// Lấy danh sách các ngày đã chấm công
+router.get('/my-dates', attendanceController.getMyAttendanceDates);
+// Lấy danh sách chấm công theo tháng
+router.get('/my-by-month', attendanceController.getMyAttendanceByMonth);
+// Lấy danh sách chấm công theo tuần
+router.get('/my-by-week', attendanceController.getMyAttendanceByWeek);
+
+module.exports = router;
