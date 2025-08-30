@@ -40,7 +40,7 @@ const Dashboard = ({ onLogout }) => {
                 </Card.Body>
               </Card>
             )}
-            {active === 'attendance' && <Attendance />}
+            {active === 'attendance' && <Attendance user={user.user} />}
             {active === 'salary' && <Salary user={user.user} />}
             {active === 'users' && <UserManagement />}
             {active === 'config' && <NightShiftConfig />}

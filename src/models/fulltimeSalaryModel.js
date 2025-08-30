@@ -2,28 +2,18 @@ const pool = require('../config/db');
 
 // Lấy lương cứng, phụ cấp, chuyên cần, thưởng của user
 async function getFulltimeSalaryInfo(user_id) {
-  const result = await pool.query('SELECT base_salary, allowance, bonus FROM salary WHERE user_id = $1 ORDER BY id DESC LIMIT 1', [user_id]);
+  const result = await pool.query('SELECT base_salary, show_salary, allowance, bonus FROM salary WHERE user_id = $1 ORDER BY id DESC LIMIT 1', [user_id]);
   return result.rows[0];
 }
 
-// Lấy tổng số show và tổng tiền show trong tháng
+// Lấy tổng số show (số ngày đi show) trong tháng từ bảng fulltime_attendance
 async function getShowInfo(user_id, month, year) {
-  // Giả sử có bảng show_attendance: user_id, show_id, date
   const result = await pool.query(
-    `SELECT s.price, COUNT(sa.id) as show_count, SUM(s.price) as total_show_salary
-     FROM show_attendance sa
-     JOIN show s ON sa.show_id = s.id
-     WHERE sa.user_id = $1 AND EXTRACT(MONTH FROM sa.date) = $2 AND EXTRACT(YEAR FROM sa.date) = $3
-     GROUP BY s.price`,
+    `SELECT COUNT(*) as show_count FROM fulltime_attendance WHERE user_id = $1 AND EXTRACT(MONTH FROM date) = $2 AND EXTRACT(YEAR FROM date) = $3`,
     [user_id, month, year]
   );
-  // Tổng số show và tổng tiền show
-  let show_count = 0, total_show_salary = 0;
-  for (const row of result.rows) {
-    show_count += Number(row.show_count);
-    total_show_salary += Number(row.total_show_salary);
-  }
-  return { show_count, total_show_salary };
+  const show_count = Number(result.rows[0].show_count || 0);
+  return { show_count };
 }
 
 module.exports = { getFulltimeSalaryInfo, getShowInfo };

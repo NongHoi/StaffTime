@@ -1,3 +1,57 @@
+const pool = require('../config/db');
+
+// Lấy lịch sử chấm công fulltime theo ngày
+const getFulltimeAttendanceByDate = async (req, res) => {
+  try {
+    const user_id = req.session.user.id;
+    const { date } = req.query;
+    if (!date) return res.status(400).json({ message: 'Thiếu ngày.' });
+    const result = await pool.query('SELECT * FROM fulltime_attendance WHERE user_id = $1 AND date = $2 ORDER BY date DESC', [user_id, date]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message || 'Lỗi server' });
+  }
+};
+
+// Lấy lịch sử chấm công fulltime theo tháng
+const getFulltimeAttendanceByMonth = async (req, res) => {
+  try {
+    const user_id = req.session.user.id;
+    const { year, month } = req.query;
+    if (!year || !month) return res.status(400).json({ message: 'Thiếu năm hoặc tháng.' });
+    const result = await pool.query('SELECT * FROM fulltime_attendance WHERE user_id = $1 AND EXTRACT(YEAR FROM date) = $2 AND EXTRACT(MONTH FROM date) = $3 ORDER BY date DESC', [user_id, year, month]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message || 'Lỗi server' });
+  }
+};
+
+// Lấy lịch sử chấm công fulltime theo tuần
+const getFulltimeAttendanceByWeek = async (req, res) => {
+  try {
+    const user_id = req.session.user.id;
+    const { year, week } = req.query;
+    if (!year || !week) return res.status(400).json({ message: 'Thiếu năm hoặc tuần.' });
+    const result = await pool.query(`SELECT *, EXTRACT(WEEK FROM date) as week_num FROM fulltime_attendance WHERE user_id = $1 AND EXTRACT(YEAR FROM date) = $2 AND EXTRACT(WEEK FROM date) = $3 ORDER BY date DESC`, [user_id, year, week]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message || 'Lỗi server' });
+  }
+};
+const fulltimeAttendanceModel = require('../models/fulltimeAttendanceModel');
+
+// Chấm công show cho fulltime
+const checkInShow = async (req, res) => {
+  try {
+    const user_id = req.session.user.id;
+    const { date, note } = req.body;
+    if (!date) return res.status(400).json({ message: 'Thiếu ngày.' });
+    const attendance = await fulltimeAttendanceModel.checkInShow({ user_id, date, note });
+    res.json({ message: 'Chấm công show thành công', attendance });
+  } catch (err) {
+    res.status(500).json({ message: err.message || 'Lỗi server' });
+  }
+};
 // Lấy danh sách các ngày đã chấm công
 const getMyAttendanceDates = async (req, res) => {
   try {
@@ -81,4 +135,16 @@ const getMyAttendanceByDate = async (req, res) => {
   }
 };
 
-module.exports = { checkIn, checkOut, getMyAttendance, getMyAttendanceByDate, getMyAttendanceDates, getMyAttendanceByMonth, getMyAttendanceByWeek };
+module.exports = {
+  checkIn,
+  checkOut,
+  getMyAttendance,
+  getMyAttendanceByDate,
+  getMyAttendanceDates,
+  getMyAttendanceByMonth,
+  getMyAttendanceByWeek,
+  checkInShow,
+  getFulltimeAttendanceByDate,
+  getFulltimeAttendanceByMonth,
+  getFulltimeAttendanceByWeek
+};

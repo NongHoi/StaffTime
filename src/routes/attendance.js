@@ -19,5 +19,11 @@ router.get('/my-dates', attendanceController.getMyAttendanceDates);
 router.get('/my-by-month', attendanceController.getMyAttendanceByMonth);
 // Lấy danh sách chấm công theo tuần
 router.get('/my-by-week', attendanceController.getMyAttendanceByWeek);
+// Chấm công show cho fulltime
+router.post('/checkin-show', attendanceController.checkInShow);
+// Lấy lịch sử chấm công fulltime
+router.get('/fulltime-by-date', attendanceController.getFulltimeAttendanceByDate);
+router.get('/fulltime-by-month', attendanceController.getFulltimeAttendanceByMonth);
+router.get('/fulltime-by-week', attendanceController.getFulltimeAttendanceByWeek);
 
 module.exports = router;

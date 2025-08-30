@@ -48,9 +48,9 @@ const removeUser = async (req, res) => {
 
 const setSalary = async (req, res) => {
   try {
-    const { userId, type, day_shift_rate, night_shift_rate, base_salary, allowance, bonus } = req.body;
+    const { userId, type, day_shift_rate, night_shift_rate, base_salary, show_salary, allowance, bonus } = req.body;
     if (!userId) return res.status(400).json({ message: 'Thiếu thông tin user.' });
-    const salary = await adminModel.setSalary({ userId, type, day_shift_rate, night_shift_rate, base_salary, allowance, bonus });
+    const salary = await adminModel.setSalary({ userId, type, day_shift_rate, night_shift_rate, base_salary, show_salary, allowance, bonus });
     res.json({ message: 'Cập nhật lương thành công', salary });
   } catch (err) {
     res.status(500).json({ message: err.message || 'Lỗi server' });

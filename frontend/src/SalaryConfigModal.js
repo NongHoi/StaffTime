@@ -7,7 +7,8 @@ const SalaryConfigModal = ({ show, onHide, user, onSave }) => {
     night_shift_rate: '',
     base_salary: '',
     allowance: '',
-    bonus: ''
+    bonus: '',
+    show_salary: '',
   });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -19,6 +20,7 @@ const SalaryConfigModal = ({ show, onHide, user, onSave }) => {
         day_shift_rate: '',
         night_shift_rate: '',
         base_salary: '',
+        show_salary: '',
         allowance: '',
         bonus: ''
       });
@@ -73,9 +75,12 @@ const SalaryConfigModal = ({ show, onHide, user, onSave }) => {
             <>
               <Row className="mb-2">
                 <Col><Form.Group><Form.Label>Lương cứng (fulltime)</Form.Label><Form.Control name="base_salary" value={form.base_salary} onChange={handleChange} /></Form.Group></Col>
-                <Col><Form.Group><Form.Label>Phụ cấp</Form.Label><Form.Control name="allowance" value={form.allowance} onChange={handleChange} /></Form.Group></Col>
+                <Col><Form.Group><Form.Label>Lương show</Form.Label><Form.Control name="show_salary" value={form.show_salary || ''} onChange={handleChange} /></Form.Group></Col>
               </Row>
-              <Form.Group className="mb-2"><Form.Label>Thưởng/Chuyên cần</Form.Label><Form.Control name="bonus" value={form.bonus} onChange={handleChange} /></Form.Group>
+              <Row className="mb-2">
+                <Col><Form.Group><Form.Label>Phụ cấp</Form.Label><Form.Control name="allowance" value={form.allowance} onChange={handleChange} /></Form.Group></Col>
+                <Col><Form.Group><Form.Label>Thưởng/Chuyên cần</Form.Label><Form.Control name="bonus" value={form.bonus} onChange={handleChange} /></Form.Group></Col>
+              </Row>
             </>
           )}
           <div className="d-grid mt-2">

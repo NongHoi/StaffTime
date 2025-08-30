@@ -1,13 +1,13 @@
 const pool = require('../config/db');
 
 const getAllUsers = async () => {
-  // Lấy lương ngày, đêm, tổng lương mới nhất cho từng user
+  // Lấy lương ngày, đêm, tổng lương, lương cứng, lương show mới nhất cho từng user
   const result = await pool.query(`
     SELECT u.id, u.username, u.fullname, u.phone, u.email, u.role_id, u.type, u.bank_account_number, u.bank_name,
-      s.day_shift_rate, s.night_shift_rate, s.total
+      s.day_shift_rate, s.night_shift_rate, s.total, s.base_salary, s.show_salary
     FROM users u
     LEFT JOIN LATERAL (
-      SELECT day_shift_rate, night_shift_rate, total
+      SELECT day_shift_rate, night_shift_rate, total, base_salary, show_salary
       FROM salary s2 WHERE s2.user_id = u.id
       ORDER BY year DESC, month DESC, id DESC LIMIT 1
     ) s ON true
@@ -19,7 +19,9 @@ const getAllUsers = async () => {
     ...u,
     day_shift_rate: formatMoney(u.day_shift_rate),
     night_shift_rate: formatMoney(u.night_shift_rate),
-    total: formatMoney(u.total)
+    total: formatMoney(u.total),
+    base_salary: formatMoney(u.base_salary),
+    show_salary: formatMoney(u.show_salary)
   }));
 };
 
@@ -40,14 +42,15 @@ const deleteUser = async (userId, currentUserId) => {
   return true;
 };
 
-const setSalary = async ({ userId, type, day_shift_rate, night_shift_rate, base_salary, allowance, bonus }) => {
+const setSalary = async ({ userId, type, day_shift_rate, night_shift_rate, base_salary, show_salary, allowance, bonus }) => {
   let result;
   if (type === 'fulltime') {
     result = await pool.query(
-      `INSERT INTO salary (user_id, base_salary, allowance, bonus, day_shift_rate, night_shift_rate)
-       VALUES ($1, $2, $3, $4, NULL, NULL) RETURNING *`,
+      `INSERT INTO salary (user_id, base_salary, show_salary, allowance, bonus, day_shift_rate, night_shift_rate)
+       VALUES ($1, $2, $3, $4, $5, NULL, NULL) RETURNING *`,
       [userId || null,
        base_salary !== '' ? base_salary : null,
+       show_salary !== '' ? show_salary : null,
        allowance !== '' ? allowance : null,
        bonus !== '' ? bonus : null]
     );

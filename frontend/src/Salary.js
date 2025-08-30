@@ -1,7 +1,66 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Row, Col, Button, Alert, Table } from 'react-bootstrap';
+import * as XLSX from 'xlsx';
 
 const Salary = ({ user }) => {
+  // ...existing code...
+
+  const handleExportSalary = () => {
+    if (!selectedUser || !result) return;
+    // Bảng tổng hợp lương hàng đầu
+    const wsData = [
+      [
+        'Tên nhân viên',
+        'Tổng giờ ngày',
+        'Tổng giờ đêm',
+        'Giá giờ ngày',
+        'Giá giờ đêm',
+        'Phụ cấp',
+        'Chuyên cần/Thưởng',
+        'Tổng lương'
+      ],
+      [
+        selectedUser.fullname,
+        result.totalDay,
+        result.totalNight,
+        result.day_shift_rate,
+        result.night_shift_rate,
+        result.allowance,
+        result.bonus,
+        Number(result.total).toLocaleString('vi-VN') + ' đồng'
+      ],
+      [],
+      // Dòng tiêu đề chi tiết ngày công (bôi vàng sau)
+      ['Chi tiết ngày công', '', '', '', '', '', '', ''],
+      ['Ngày', 'Giờ vào', 'Giờ ra', 'Ghi chú', '', '', '', '']
+    ];
+    // Thêm từng dòng ngày công
+    attendance.forEach(a => {
+      wsData.push([
+        a.date ? new Date(a.date).toLocaleDateString('vi-VN') : '',
+        a.check_in ? new Date(a.check_in).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '',
+        a.check_out ? new Date(a.check_out).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '',
+        a.note || '', '', '', ''
+      ]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    // Merge cell cho dòng 'Chi tiết ngày công'
+    ws['!merges'] = ws['!merges'] || [];
+    ws['!merges'].push({ s: { r: 3, c: 0 }, e: { r: 3, c: 3 } });
+    // Bôi vàng dòng 'Chi tiết ngày công'
+    const chiTietRow = 4; // Excel index 1-based, js 0-based
+    for (let c = 0; c <= 3; c++) {
+      const cell = ws[XLSX.utils.encode_cell({ r: chiTietRow, c })];
+      if (cell) {
+        cell.s = { fill: { fgColor: { rgb: 'FFFF00' } } };
+      }
+    }
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'BangLuong');
+    // Thêm style cho workbook nếu cần
+    XLSX.writeFile(wb, `BangLuong_${selectedUser.fullname}.xlsx`);
+  };
   const [userId, setUserId] = useState('');
   const [users, setUsers] = useState([]);
   const [type, setType] = useState('parttime');
@@ -40,7 +99,13 @@ const Salary = ({ user }) => {
     setSelectedUser(user || null);
     // Lấy ngày công tháng cho user được chọn (admin/manager)
     const fetchAttendance = async () => {
-      const res = await fetch(`/api/admin/attendance-by-month?user_id=${userId}&year=${year}&month=${month}`);
+      let url = '';
+      if (type === 'fulltime') {
+        url = `/api/attendance/fulltime-by-month?user_id=${userId}&year=${year}&month=${month}`;
+      } else {
+        url = `/api/admin/attendance-by-month?user_id=${userId}&year=${year}&month=${month}`;
+      }
+      const res = await fetch(url);
       if (res.ok) setAttendance(await res.json());
       else setAttendance([]);
     };
@@ -109,9 +174,11 @@ const Salary = ({ user }) => {
               <Form.Label>Nhân viên</Form.Label>
               <Form.Select value={userId} onChange={e => setUserId(e.target.value)} required>
                 <option value="">Chọn nhân viên</option>
-                {users.map(u => (
-                  <option key={u.id} value={u.id}>{u.fullname} ({u.username})</option>
-                ))}
+                {users
+                  .filter(u => (type === 'fulltime' ? u.type === 'fulltime' : u.type !== 'fulltime'))
+                  .map(u => (
+                    <option key={u.id} value={u.id}>{u.fullname} ({u.username})</option>
+                  ))}
               </Form.Select>
             </Form.Group>
           </Col>
@@ -136,7 +203,6 @@ const Salary = ({ user }) => {
               <Form.Control type="number" min={2020} max={2100} value={year} onChange={e => setYear(Number(e.target.value))} />
             </Form.Group>
           </Col>
-          {/* Bỏ nhập giờ đêm ở đây, chuyển xuống dưới */}
           <Col md={2}>
             <Form.Group>
               <Form.Label>Phụ cấp</Form.Label>
@@ -149,10 +215,15 @@ const Salary = ({ user }) => {
               <Form.Control type="number" value={bonus} onChange={e => setBonus(e.target.value)} />
             </Form.Group>
           </Col>
-          <Col md={2}>
-            <Button variant="primary" style={{ background: '#6c63ff', border: 'none' }} onClick={handleCalc} disabled={loading || !userId}>
+          <Col md={3} className="d-flex align-items-end justify-content-end" style={{ gap: 16 }}>
+            <Button variant="primary" style={{ background: '#6c63ff', border: 'none', minWidth: 110 }} onClick={handleCalc} disabled={loading || !userId}>
               Tính lương
             </Button>
+            {result && (
+              <Button variant="success" style={{ minWidth: 130 }} onClick={handleExportSalary}>
+                Xuất bảng lương
+              </Button>
+            )}
           </Col>
         </Form>
         {error && <Alert variant="danger">{error}</Alert>}
@@ -181,11 +252,11 @@ const Salary = ({ user }) => {
                 </>
               ) : (
                 <>
-                  <tr><td>Lương cứng</td><td>{result.base_salary}</td></tr>
-                  <tr><td>Số show</td><td>{result.show_count}</td></tr>
-                  <tr><td>Tổng lương show</td><td>{result.total_show_salary}</td></tr>
-                  <tr><td>Phụ cấp</td><td>{result.allowance}</td></tr>
-                  <tr><td>Chuyên cần/Thưởng</td><td>{result.bonus}</td></tr>
+                  <tr><td>Lương cứng</td><td>{Number(result.base_salary).toLocaleString('vi-VN')}</td></tr>
+                  <tr><td>Số ngày đi show trong tháng</td><td>{result.show_count}</td></tr>
+                  <tr><td>Tổng lương show</td><td>{Number(result.total_show_salary).toLocaleString('vi-VN')}</td></tr>
+                  <tr><td>Phụ cấp</td><td>{Number(result.allowance).toLocaleString('vi-VN')}</td></tr>
+                  <tr><td>Chuyên cần/Thưởng</td><td>{Number(result.bonus).toLocaleString('vi-VN')}</td></tr>
                   <tr><td><b>Tổng lương</b></td><td><b>{Number(result.total).toLocaleString('vi-VN')} đồng</b></td></tr>
                 </>
               )}
@@ -216,30 +287,40 @@ const Salary = ({ user }) => {
         </Form> */}
         <h6 className="mt-4">Nhân viên đã chọn</h6>
         {selectedUser && (
-          <Table bordered hover responsive size="sm">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Họ và tên</th>
-                <th>Lương ngày</th>
-                <th>Lương đêm</th>
-                <th>Số tài khoản</th>
-                <th>Tên ngân hàng</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{selectedUser.id}</td>
-                <td>{selectedUser.fullname}</td>
-                <td>{selectedUser.day_shift_rate || ''}</td>
-                <td>{selectedUser.night_shift_rate || ''}</td>
-                <td>{selectedUser.bank_account_number || ''}</td>
-                <td>{selectedUser.bank_name || ''}</td>
-                <td>{selectedUser.total || ''}</td>
-              </tr>
-            </tbody>
-          </Table>
+          <>
+            <Table bordered hover responsive size="sm">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Họ và tên</th>
+                  {type === 'fulltime' ? <><th>Lương cứng</th><th>Lương show</th></> : <><th>Lương ngày</th><th>Lương đêm</th></>}
+                  <th>Số tài khoản</th>
+                  <th>Tên ngân hàng</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{selectedUser.id}</td>
+                  <td>{selectedUser.fullname}</td>
+                  {type === 'fulltime' ? (
+                    <>
+                      <td>{selectedUser.base_salary || ''}</td>
+                      <td>{selectedUser.show_salary || ''}</td>
+                    </>
+                  ) : (
+                    <>
+                      <td>{selectedUser.day_shift_rate || ''}</td>
+                      <td>{selectedUser.night_shift_rate || ''}</td>
+                    </>
+                  )}
+                  <td>{selectedUser.bank_account_number || ''}</td>
+                  <td>{selectedUser.bank_name || ''}</td>
+                </tr>
+              </tbody>
+            </Table>
+          </>
         )}
+
 
         {/* Bảng ngày công tháng của nhân viên đã chọn */}
         {selectedUser && (
@@ -249,19 +330,22 @@ const Salary = ({ user }) => {
               <thead>
                 <tr>
                   <th>Ngày</th>
-                  <th>Giờ vào</th>
-                  <th>Giờ ra</th>
+                  {type === 'parttime' ? <><th>Giờ vào</th><th>Giờ ra</th></> : null}
                   <th>Ghi chú</th>
                 </tr>
               </thead>
               <tbody>
                 {attendance.length === 0 ? (
-                  <tr><td colSpan={4}>Không có dữ liệu</td></tr>
+                  <tr>
+                    <td colSpan={type === 'parttime' ? 4 : 2}>Không có dữ liệu</td>
+                  </tr>
                 ) : attendance.map((a, idx) => (
                   <tr key={idx}>
                     <td>{a.date ? new Date(a.date).toLocaleDateString('vi-VN') : ''}</td>
-                    <td>{a.check_in ? new Date(a.check_in).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}</td>
-                    <td>{a.check_out ? new Date(a.check_out).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}</td>
+                    {type === 'parttime' ? <>
+                      <td>{a.check_in ? new Date(a.check_in).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}</td>
+                      <td>{a.check_out ? new Date(a.check_out).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : ''}</td>
+                    </> : null}
                     <td>{a.note || ''}</td>
                   </tr>
                 ))}

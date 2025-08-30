@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Table, Form, Row, Col, Alert } from 'react-bootstrap';
 
-const Attendance = () => {
+const Attendance = ({ user }) => {
   const [history, setHistory] = useState([]);
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [inTime, setInTime] = useState('');
-  const [outTime, setOutTime] = useState('');
-  const [outNote, setOutNote] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,9 +25,16 @@ const Attendance = () => {
   // Lấy dữ liệu chấm công theo bộ lọc
   const fetchHistory = async () => {
     let url = '';
-    if (filterType === 'date') url = `/api/attendance/my-by-date?date=${date}`;
-    else if (filterType === 'month' && year && month) url = `/api/attendance/my-by-month?year=${year}&month=${month}`;
-    else if (filterType === 'week' && year && week) url = `/api/attendance/my-by-week?year=${year}&week=${week}`;
+    if (user?.type === 'fulltime') {
+      // API riêng cho fulltime
+      if (filterType === 'date') url = `/api/attendance/fulltime-by-date?date=${date}`;
+      else if (filterType === 'month' && year && month) url = `/api/attendance/fulltime-by-month?year=${year}&month=${month}`;
+      else if (filterType === 'week' && year && week) url = `/api/attendance/fulltime-by-week?year=${year}&week=${week}`;
+    } else {
+      if (filterType === 'date') url = `/api/attendance/my-by-date?date=${date}`;
+      else if (filterType === 'month' && year && month) url = `/api/attendance/my-by-month?year=${year}&month=${month}`;
+      else if (filterType === 'week' && year && week) url = `/api/attendance/my-by-week?year=${year}&week=${week}`;
+    }
     if (!url) return setHistory([]);
     const res = await fetch(url);
     if (res.ok) setHistory(await res.json());
@@ -55,6 +59,40 @@ const Attendance = () => {
     }
   }, [filterType, year, month, attendanceDates]);
 
+  // Khai báo các biến và hàm chỉ dùng cho parttime
+  const [inTime, setInTime] = useState('');
+  const [outTime, setOutTime] = useState('');
+  const [outNote, setOutNote] = useState('');
+
+  // Chấm công show cho fulltime
+  const handleCheckShow = async () => {
+    setLoading(true); setMessage(''); setError('');
+    try {
+      const today = new Date();
+      const selected = new Date(date);
+      if (selected > today) {
+        setError('Không thể chấm công cho ngày trong tương lai!');
+        setLoading(false);
+        return;
+      }
+      const res = await fetch('/api/attendance/checkin-show', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date, note: outNote })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Chấm công thất bại');
+      setMessage('Chấm công show thành công!');
+      setOutNote('');
+      fetchHistory();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Chấm công in cho parttime
   const handleCheckIn = async () => {
     setLoading(true); setMessage(''); setError('');
     try {
@@ -116,29 +154,47 @@ const Attendance = () => {
                 <Form.Control type="date" value={date} onChange={e => setDate(e.target.value)} />
               </Form.Group>
             </Col>
-            <Col md={2}>
-              <Form.Group>
-                <Form.Label>Giờ vào</Form.Label>
-                <Form.Control type="time" value={inTime} onChange={e => setInTime(e.target.value)} />
-              </Form.Group>
-            </Col>
-            <Col md={2}>
-              <Button variant="primary" style={{ background: '#6c63ff', border: 'none' }} onClick={handleCheckIn} disabled={loading || !inTime}>
-                Chấm công in
-              </Button>
-            </Col>
-            <Col md={2}>
-              <Form.Group>
-                <Form.Label>Giờ ra</Form.Label>
-                <Form.Control type="time" value={outTime} onChange={e => setOutTime(e.target.value)} />
-              </Form.Group>
-            </Col>
-            <Col md={3}>
-              <Form.Group>
-                <Form.Label>Ghi chú ra</Form.Label>
-                <Form.Control type="text" value={outNote} onChange={e => setOutNote(e.target.value)} placeholder="Ghi chú khi ra (nếu có)" />
-              </Form.Group>
-            </Col>
+            {user?.type === 'fulltime' ? (
+              <>
+                <Col md={3}>
+                  <Form.Group>
+                    <Form.Label>Ghi chú</Form.Label>
+                    <Form.Control type="text" value={outNote} onChange={e => setOutNote(e.target.value)} placeholder="Ghi chú (nếu có)" />
+                  </Form.Group>
+                </Col>
+                <Col md={3}>
+                  <Button variant="primary" style={{ background: '#6c63ff', border: 'none', marginTop: 30 }} onClick={handleCheckShow} disabled={loading}>
+                    Chấm công show hôm nay
+                  </Button>
+                </Col>
+              </>
+            ) : (
+              <>
+                <Col md={2}>
+                  <Form.Group>
+                    <Form.Label>Giờ vào</Form.Label>
+                    <Form.Control type="time" value={inTime} onChange={e => setInTime(e.target.value)} />
+                  </Form.Group>
+                </Col>
+                <Col md={2}>
+                  <Button variant="primary" style={{ background: '#6c63ff', border: 'none' }} onClick={handleCheckIn} disabled={loading || !inTime}>
+                    Chấm công in
+                  </Button>
+                </Col>
+                <Col md={2}>
+                  <Form.Group>
+                    <Form.Label>Giờ ra</Form.Label>
+                    <Form.Control type="time" value={outTime} onChange={e => setOutTime(e.target.value)} />
+                  </Form.Group>
+                </Col>
+                <Col md={3}>
+                  <Form.Group>
+                    <Form.Label>Ghi chú ra</Form.Label>
+                    <Form.Control type="text" value={outNote} onChange={e => setOutNote(e.target.value)} placeholder="Ghi chú khi ra (nếu có)" />
+                  </Form.Group>
+                </Col>
+              </>
+            )}
           </Form>
           <div className="mt-2">
             {message && <Alert variant="success">{message}</Alert>}
@@ -204,31 +260,41 @@ const Attendance = () => {
             <thead>
               <tr>
                 <th>#</th>
-                {filterType === 'month' && <th>Ngày đã chấm</th>}
-                <th>Giờ vào</th>
-                <th>Giờ ra</th>
-                {/* Không cần loại ca */}
-                <th>Ghi chú</th>
-                <th>Thao tác</th>
+                <th>Ngày</th>
+                {user?.type === 'fulltime' ? (
+                  <th>Ghi chú</th>
+                ) : (
+                  <>
+                    <th>Giờ vào</th>
+                    <th>Giờ ra</th>
+                    <th>Ghi chú</th>
+                    <th>Thao tác</th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
-              {history.length === 0 && <tr><td colSpan={filterType === 'month' ? 6 : 5} className="text-center">Không có dữ liệu</td></tr>}
+              {history.length === 0 && <tr><td colSpan={user?.type === 'fulltime' ? 3 : (filterType === 'month' ? 6 : 5)} className="text-center">Không có dữ liệu</td></tr>}
               {history.map((item, idx) => (
                 <tr key={item.id}>
                   <td>{idx + 1}</td>
-                  {filterType === 'month' && <td>{item.check_in ? new Date(item.check_in).toLocaleDateString('vi-VN') : ''}</td>}
-                  <td>{item.check_in ? new Date(item.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</td>
-                  <td>{item.check_out ? new Date(item.check_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</td>
-                  {/* Không cần loại ca */}
-                  <td>{item.note || ''}</td>
-                  <td>
-                    {!item.check_out && (
-                      <Button size="sm" variant="outline-primary" onClick={() => handleCheckOut(item.id)} disabled={loading || !outTime}>
-                        Chấm công out
-                      </Button>
-                    )}
-                  </td>
+                  <td>{item.date ? new Date(item.date).toLocaleDateString('vi-VN') : ''}</td>
+                  {user?.type === 'fulltime' ? (
+                    <td>{item.note || ''}</td>
+                  ) : (
+                    <>
+                      <td>{item.check_in ? new Date(item.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</td>
+                      <td>{item.check_out ? new Date(item.check_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</td>
+                      <td>{item.note || ''}</td>
+                      <td>
+                        {!item.check_out && (
+                          <Button size="sm" variant="outline-primary" onClick={() => handleCheckOut(item.id)} disabled={loading || !outTime}>
+                            Chấm công out
+                          </Button>
+                        )}
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>
