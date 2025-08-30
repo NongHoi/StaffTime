@@ -11,6 +11,7 @@ import Sidebar from './Sidebar';
 const Dashboard = ({ onLogout }) => {
   const [user, setUser] = useState(null);
   const [active, setActive] = useState('dashboard');
+  const [showSidebar, setShowSidebar] = useState(false);
 
   useEffect(() => {
     // Lấy thông tin user từ session
@@ -25,7 +26,15 @@ const Dashboard = ({ onLogout }) => {
 
   return (
     <div style={{ background: '#f6f8fa', minHeight: '100vh' }}>
-      <Header onLogout={onLogout} />
+      <Header onLogout={onLogout} onMenuClick={() => setShowSidebar(true)} />
+      {/* Sidebar mobile */}
+      <Sidebar
+        role={role}
+        active={active}
+        onNavigate={setActive}
+        show={showSidebar}
+        onHide={() => setShowSidebar(false)}
+      />
       <Container fluid>
         <Row>
           <Col md={2} className="d-none d-md-block">
@@ -42,7 +51,7 @@ const Dashboard = ({ onLogout }) => {
             )}
             {active === 'attendance' && <Attendance user={user.user} />}
             {active === 'salary' && <Salary user={user.user} />}
-            {active === 'users' && <UserManagement />}
+            {active === 'users' && <UserManagement user={user.user} />}
             {active === 'config' && <NightShiftConfig />}
             {active === 'profile' && <Profile user={user.user} />}
             {/* Các trang chức năng sẽ bổ sung tại đây */}

@@ -5,7 +5,7 @@ import UserEditModal from './UserEditModal';
 
 const roleMap = { 1: 'Admin', 2: 'Manager', 3: 'User' };
 
-const UserManagement = () => {
+const UserManagement = ({ user }) => {
   const [users, setUsers] = useState([]);
   const [showSalaryModal, setShowSalaryModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -78,42 +78,51 @@ const UserManagement = () => {
               <th>Email</th>
               <th>Số tài khoản</th>
               <th>Tên ngân hàng</th>
-              <th>Quyền</th>
+              {user?.role_id === 1 && <th>Quyền</th>}
               <th>Loại</th>
               <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {users.length === 0 && <tr><td colSpan={8} className="text-center">Không có dữ liệu</td></tr>}
-            {users.map(user => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>{user.username}</td>
-                <td>{user.fullname}</td>
-                <td>{user.phone}</td>
-                <td>{user.email}</td>
-                <td>{user.bank_account_number || ''}</td>
-                <td>{user.bank_name || ''}</td>
+            {users.map(u => (
+              <tr key={u.id}>
+                <td>{u.id}</td>
+                <td>{u.username}</td>
+                <td>{u.fullname}</td>
+                <td>{u.phone}</td>
+                <td>{u.email}</td>
+                <td>{u.bank_account_number || ''}</td>
+                <td>{u.bank_name || ''}</td>
+                {user?.role_id === 1 && (
+                  <td>
+                    <Form.Select size="sm" value={u.role_id} onChange={e => handleChangeRole(u.id, Number(e.target.value))}>
+                      <option value={1}>Admin</option>
+                      <option value={2}>Manager</option>
+                      <option value={3}>User</option>
+                    </Form.Select>
+                  </td>
+                )}
                 <td>
-                  <Form.Select size="sm" value={user.role_id} onChange={e => handleChangeRole(user.id, Number(e.target.value))}>
-                    <option value={1}>Admin</option>
-                    <option value={2}>Manager</option>
-                    <option value={3}>User</option>
-                  </Form.Select>
-                </td>
-                <td>
-                  <Form.Select size="sm" value={user.type} onChange={e => handleChangeType(user.id, e.target.value)}>
+                  <Form.Select
+                    size="sm"
+                    value={u.type}
+                    onChange={e => handleChangeType(u.id, e.target.value)}
+                    disabled={user?.role_id !== 1 && u.role_id === 1}
+                  >
                     <option value="parttime">Parttime</option>
                     <option value="fulltime">Fulltime</option>
                   </Form.Select>
                 </td>
                 <td>
-                  <Button size="sm" variant="outline-primary" className="me-1" onClick={() => { setSelectedUser(user); setShowSalaryModal(true); }}>
+                  <Button size="sm" variant="outline-primary" className="me-1" onClick={() => { setSelectedUser(u); setShowSalaryModal(true); }}>
                     Cấu hình lương
                   </Button>
-                  <Button size="sm" variant="outline-danger" onClick={() => handleDelete(user.id)}>
-                    Xóa
-                  </Button>
+                  {user?.role_id === 1 && (
+                    <Button size="sm" variant="outline-danger" onClick={() => handleDelete(u.id)}>
+                      Xóa
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}
