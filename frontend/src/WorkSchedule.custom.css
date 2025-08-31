@@ -1,0 +1,12 @@
+.nowrap-table th, .nowrap-table td, .nowrap-cell {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Viền đỏ cho ngày có lịch làm trên calendar */
+.has-schedule {
+  border: 2px solid red !important;
+  border-radius: 50% !important;
+  background: #fff6f6 !important;
+  color: #d00 !important;
+}

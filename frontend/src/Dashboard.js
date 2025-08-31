@@ -7,6 +7,9 @@ import NightShiftConfig from './NightShiftConfig';
 import Profile from './Profile';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import WorkSchedule from './WorkSchedule';
+import RegisterWorkSchedule from './RegisterWorkSchedule';
+import MyRegisteredWorkSchedule from './MyRegisteredWorkSchedule';
 
 const Dashboard = ({ onLogout }) => {
   const [user, setUser] = useState(null);
@@ -52,6 +55,9 @@ const Dashboard = ({ onLogout }) => {
             {active === 'attendance' && <Attendance user={user.user} />}
             {active === 'salary' && <Salary user={user.user} />}
             {active === 'users' && <UserManagement user={user.user} />}
+            {(active === 'workSchedule' && (role === 1 || role === 2)) && <WorkSchedule user={user.user} />}
+            {active === 'registerWorkSchedule' && <RegisterWorkSchedule />}
+            {active === 'myRegisteredWorkSchedule' && role === 3 && <MyRegisteredWorkSchedule user={user.user} />}
             {active === 'config' && <NightShiftConfig />}
             {active === 'profile' && <Profile user={user.user} />}
             {/* Các trang chức năng sẽ bổ sung tại đây */}

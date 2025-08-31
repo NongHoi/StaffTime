@@ -19,13 +19,16 @@ const adminRoutes = require('./src/routes/admin');
 const attendanceRoutes = require('./src/routes/attendance');
 const configRoutes = require('./src/routes/config');
 const salaryRoutes = require('./src/routes/salary');
+
 const profileRoutes = require('./src/routes/profile');
+const workScheduleRoutes = require('./src/routes/workSchedule');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/salary', salaryRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/work-schedule', workScheduleRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

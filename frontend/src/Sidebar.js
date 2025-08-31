@@ -9,8 +9,12 @@ const Sidebar = ({ role, onNavigate, active, show, onHide }) => {
     { key: 'profile', label: 'Thông tin cá nhân' },
   ];
   if (role === 1 || role === 2) {
+    menu.push({ key: 'workSchedule', label: 'Lịch làm' });
     menu.push({ key: 'salary', label: 'Tính lương' });
     menu.push({ key: 'users', label: 'Quản lý nhân viên' });
+  } else if (role === 3) {
+    menu.push({ key: 'registerWorkSchedule', label: 'Đăng ký lịch làm' });
+    menu.push({ key: 'myRegisteredWorkSchedule', label: 'Lịch đã đăng ký' });
   }
 
   // Hiển thị dạng Offcanvas nếu có prop show, onHide (mobile), còn lại là sidebar dọc (desktop)
