@@ -12,6 +12,7 @@ const Sidebar = ({ role, onNavigate, active, show, onHide }) => {
     menu.push({ key: 'workSchedule', label: 'Lịch làm' });
     menu.push({ key: 'salary', label: 'Tính lương' });
     menu.push({ key: 'users', label: 'Quản lý nhân viên' });
+    menu.push({ key: 'savedPayrolls', label: 'Bảng lương đã lưu' });
   } else if (role === 3) {
     menu.push({ key: 'registerWorkSchedule', label: 'Đăng ký lịch làm' });
     menu.push({ key: 'myRegisteredWorkSchedule', label: 'Lịch đã đăng ký' });

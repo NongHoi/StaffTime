@@ -10,17 +10,24 @@ import Sidebar from './Sidebar';
 import WorkSchedule from './WorkSchedule';
 import RegisterWorkSchedule from './RegisterWorkSchedule';
 import MyRegisteredWorkSchedule from './MyRegisteredWorkSchedule';
+import SavedPayrolls from './SavedPayrolls';
 
 const Dashboard = ({ onLogout }) => {
   const [user, setUser] = useState(null);
   const [active, setActive] = useState('dashboard');
   const [showSidebar, setShowSidebar] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
     // Lấy thông tin user từ session
     fetch('/api/auth/me').then(async res => {
       if (res.ok) setUser(await res.json());
       else onLogout();
+    });
+    // Lấy danh sách user cho SavedPayrolls
+    fetch('/api/admin/users').then(async res => {
+      if (res.ok) setAllUsers(await res.json());
+      else setAllUsers([]);
     });
   }, [onLogout]);
 
@@ -60,6 +67,7 @@ const Dashboard = ({ onLogout }) => {
             {active === 'myRegisteredWorkSchedule' && role === 3 && <MyRegisteredWorkSchedule user={user.user} />}
             {active === 'config' && <NightShiftConfig />}
             {active === 'profile' && <Profile user={user.user} />}
+            {active === 'savedPayrolls' && (role === 1 || role === 2) && <SavedPayrolls users={allUsers} />}
             {/* Các trang chức năng sẽ bổ sung tại đây */}
           </Col>
         </Row>

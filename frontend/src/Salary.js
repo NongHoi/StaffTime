@@ -161,6 +161,40 @@ const Salary = ({ user }) => {
     }
   };
 
+  // Lưu bảng lương đã tính
+  const handleSavePayroll = async () => {
+    if (!selectedUser || !result) return;
+    try {
+      const body = {
+        user_id: selectedUser.id,
+        month,
+        year,
+        total_day: result.totalDay,
+        total_night: result.totalNight,
+        day_shift_rate: result.day_shift_rate,
+        night_shift_rate: result.night_shift_rate,
+        allowance: Number(allowance) || 0,
+        bonus: Number(bonus) || 0,
+        total: result.total || (
+          Number(result.totalDay) * Number(result.day_shift_rate || 0) +
+          Number(result.totalNight) * Number(result.night_shift_rate || 0) +
+          Number(allowance || 0) +
+          Number(bonus || 0)
+        )
+      };
+      const res = await fetch('/api/payroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Lưu bảng lương thất bại');
+      alert('Đã lưu bảng lương thành công!');
+    } catch (err) {
+      alert('Lỗi lưu bảng lương: ' + (err.message || ''));
+    }
+  };
+
   // Chỉ cho phép admin/manager xem trang này
   if (!user || (user.role_id !== 1 && user.role_id !== 2)) return null;
 
@@ -214,18 +248,27 @@ const Salary = ({ user }) => {
               <Form.Label>Chuyên cần/Thưởng</Form.Label>
               <Form.Control type="number" value={bonus} onChange={e => setBonus(e.target.value)} />
             </Form.Group>
-          </Col>
-          <Col md={3} className="d-flex align-items-end justify-content-end" style={{ gap: 16 }}>
-            <Button variant="primary" style={{ background: '#6c63ff', border: 'none', minWidth: 110 }} onClick={handleCalc} disabled={loading || !userId}>
-              Tính lương
-            </Button>
-            {result && (
-              <Button variant="success" style={{ minWidth: 130 }} onClick={handleExportSalary}>
-                Xuất bảng lương
+            </Col>
+          </Form>
+          {/* Row for action buttons below bonus */}
+          <Row className="mb-3">
+            <Col md={12} className="d-flex align-items-end justify-content-start" style={{ gap: 16, paddingLeft: 0 }}>
+              <Button variant="primary" style={{ background: '#6c63ff', border: 'none', minWidth: 110 }} onClick={handleCalc} disabled={loading || !userId}>
+                Tính lương
               </Button>
-            )}
-          </Col>
-        </Form>
+              {result && (
+                <>
+                  <Button variant="success" style={{ minWidth: 130, marginLeft: 8 }} onClick={handleExportSalary}>
+                    Xuất bảng lương
+                  </Button>
+                  <Button variant="primary" style={{ minWidth: 130, marginLeft: 8 }} onClick={handleSavePayroll}>
+                    Lưu bảng lương
+                  </Button>
+                </>
+              )}
+            </Col>
+          </Row>
+  {/* End Form fields */}
         {error && <Alert variant="danger">{error}</Alert>}
         {result && (
           <Table bordered hover responsive size="sm" className="mt-3">
