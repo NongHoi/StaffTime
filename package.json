@@ -1,10 +1,10 @@
 {
   "name": "stafftime-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -16,6 +16,8 @@
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",
     "react-scripts": "^5.0.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "web-vitals": "^5.1.0",
     "xlsx": "^0.18.5"
   },
