@@ -10,18 +10,36 @@ const Profile = () => {
     // Lấy thông tin cá nhân hiện tại
     const fetchProfile = async () => {
       try {
+        console.log('Fetching profile...');
         const res = await fetch('/api/profile');
+        
+        console.log('Profile fetch response status:', res.status);
+        
         if (res.ok) {
-          const data = await res.json();
-          setForm({
-            fullname: data.fullname || '',
-            phone: data.phone || '',
-            email: data.email || '',
-            bank_account_number: data.bank_account_number || '',
-            bank_name: data.bank_name || ''
-          });
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const data = await res.json();
+            console.log('Profile data received:', data);
+            
+            setForm({
+              fullname: data.fullname || data.full_name || '',
+              phone: data.phone || '',
+              email: data.email || '',
+              bank_account_number: data.bank_account_number || '',
+              bank_name: data.bank_name || ''
+            });
+          } else {
+            console.error('Profile fetch returned non-JSON response');
+            setError('Không thể tải thông tin profile');
+          }
+        } else {
+          console.error('Profile fetch failed with status:', res.status);
+          setError('Không thể tải thông tin profile');
         }
-      } catch {}
+      } catch (err) {
+        console.error('Profile fetch error:', err);
+        setError('Lỗi khi tải thông tin profile');
+      }
     };
     fetchProfile();
   }, []);
@@ -34,16 +52,36 @@ const Profile = () => {
     e.preventDefault();
     setMessage(''); setError('');
     try {
+      console.log('Submitting profile data:', form);
+      
       const res = await fetch('/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       });
+      
+      console.log('Response status:', res.status);
+      console.log('Response headers:', res.headers);
+      
+      // Check if response is JSON
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        console.error('Non-JSON response:', text);
+        throw new Error('Server trả về định dạng không đúng. Vui lòng kiểm tra server.');
+      }
+      
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Cập nhật thất bại');
+      console.log('Response data:', data);
+      
+      if (!res.ok) {
+        throw new Error(data.message || `Cập nhật thất bại: ${res.status}`);
+      }
+      
       setMessage('Cập nhật thành công!');
     } catch (err) {
-      setError(err.message);
+      console.error('Profile update error:', err);
+      setError(err.message || 'Lỗi không xác định');
     }
   };
 

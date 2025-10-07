@@ -34,9 +34,13 @@ const Header = ({ onLogout, onMenuClick }) => {
         <div className="header-right">
           {user && (
             <div className="user-info">
-              <i className="bi bi-person-circle"></i>
-              <span className="username">{user.full_name || user.username}</span>
-              <span className="d-none d-md-inline">({getRoleText(user.role_id)})</span>
+              <div className="user-avatar">
+                {(user.full_name || user.username).charAt(0).toUpperCase()}
+              </div>
+              <div className="user-details">
+                <div className="user-name">{user.full_name || user.username}</div>
+                <div className="user-role">{getRoleText(user.role_id)}</div>
+              </div>
             </div>
           )}
           
@@ -45,8 +49,8 @@ const Header = ({ onLogout, onMenuClick }) => {
             onClick={onLogout}
             type="button"
           >
-            <i className="bi bi-box-arrow-right me-2"></i>
-            Đăng xuất
+            <i className="bi bi-box-arrow-right"></i>
+            <span className="d-none d-md-inline ms-2">Đăng xuất</span>
           </button>
         </div>
       </div>

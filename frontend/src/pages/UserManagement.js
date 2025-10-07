@@ -85,9 +85,20 @@ const UserManagement = ({ user }) => {
             {!loading && users.length === 0 && <tr><td colSpan={user?.role_id === 1 ? 10 : 9} className="text-center">Không có dữ liệu</td></tr>}
             {users.map(u => (
               <tr key={u.id}>
-                <td>{u.id}</td>
+                <td>
+                  <span 
+                    title={u.id} 
+                    style={{ 
+                      fontFamily: 'monospace', 
+                      fontSize: '0.85rem',
+                      color: 'var(--gray-600)'
+                    }}
+                  >
+                    {u.id.substring(0, 8)}...
+                  </span>
+                </td>
                 <td>{u.username}</td>
-                <td>{u.fullname}</td>
+                <td><strong>{u.fullname}</strong></td>
                 <td>{u.phone}</td>
                 <td>{u.email}</td>
                 <td>{u.bank_account_number || ''}</td>

@@ -68,6 +68,7 @@ const payrollRoutes = require('./api/payroll/payroll.mongo.routes')(io, connecte
 const workScheduleRoutes = require('./api/work-schedule/work-schedule.mongo.routes')(io, connectedUsers);
 const requestRoutes = require('./api/requests/requests.mongo.routes')(io, connectedUsers);
 const configRoutes = require('./api/config/config.mongo.routes')(io, connectedUsers);
+const dashboardRoutes = require('./routes/dashboard.mongo.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -79,6 +80,7 @@ app.use('/api/payroll', payrollRoutes);
 app.use('/api/work-schedule', workScheduleRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/config', configRoutes);
+app.use('/', dashboardRoutes);
 
 // Thêm một route để test gửi thông báo
 app.post('/api/notify', (req, res) => {

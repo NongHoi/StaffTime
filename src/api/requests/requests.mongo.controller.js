@@ -16,19 +16,51 @@ module.exports = (io, connectedUsers) => {
                 return res.status(401).json({ message: 'Chưa đăng nhập' });
             }
 
-            const { type, reason, start_date, end_date, note } = req.body;
+            // Support both old and new field names for compatibility
+            const { 
+                type, request_type, 
+                reason, title, description,
+                start_date, end_date, 
+                note 
+            } = req.body;
 
-            if (!type || !reason) {
-                return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' });
+            const requestType = request_type || type;
+            const requestTitle = title || reason || 'Yêu cầu từ nhân viên';
+            const requestDescription = description || reason || note || '';
+
+            if (!requestType) {
+                return res.status(400).json({ message: 'Thiếu loại yêu cầu' });
             }
 
+            // Validate request type
+            if (!['leave', 'overtime', 'schedule_change'].includes(requestType)) {
+                return res.status(400).json({ message: 'Loại yêu cầu không hợp lệ' });
+            }
+
+            // Validate dates if required
+            let startDate, endDate;
+            if (start_date) {
+                startDate = new Date(start_date);
+                if (isNaN(startDate.getTime())) {
+                    return res.status(400).json({ message: 'Ngày bắt đầu không hợp lệ' });
+                }
+            }
+            
+            if (end_date) {
+                endDate = new Date(end_date);
+                if (isNaN(endDate.getTime())) {
+                    return res.status(400).json({ message: 'Ngày kết thúc không hợp lệ' });
+                }
+            }
+
+            // Create request with correct field names
             const request = new Request({
                 user_id: user_id,
-                type: type,
-                reason: reason,
-                start_date: start_date ? new Date(start_date) : undefined,
-                end_date: end_date ? new Date(end_date) : undefined,
-                note: note,
+                request_type: requestType,
+                title: requestTitle,
+                description: requestDescription,
+                start_date: startDate,
+                end_date: endDate,
                 status: 'pending'
             });
 
@@ -37,7 +69,24 @@ module.exports = (io, connectedUsers) => {
             // Notify managers
             const managers = await User.find({ role_id: { $in: [1, 2] } });
             managers.forEach(manager => {
-                sendNotification(manager._id, `Có yêu cầu mới từ nhân viên: ${type}`);
+                sendNotification(manager._id.toString(), `Có yêu cầu mới từ ${req.session.user?.full_name || req.session.user?.username}: ${requestType}`);
+            });
+
+            // Emit dashboard event for new request
+            io.emit('new_request', {
+                requestId: request._id,
+                userId: user_id,
+                userName: req.session.user?.full_name || req.session.user?.username,
+                type: request.request_type,
+                title: requestTitle,
+                message: `Yêu cầu ${request.request_type} mới từ ${req.session.user?.full_name || req.session.user?.username}`,
+                timestamp: new Date()
+            });
+
+            // Update dashboard stats
+            const pendingCount = await Request.countDocuments({ status: 'pending' });
+            io.emit('dashboard_update', {
+                pendingRequests: pendingCount
             });
 
             res.json({ 
@@ -96,17 +145,33 @@ module.exports = (io, connectedUsers) => {
     const updateRequestStatus = async (req, res) => {
         try {
             const { id } = req.params;
-            const { status, response_note } = req.body;
+            const { status, response_note, manager_comment } = req.body;
+            const approved_by = req.session.user?.id;
+
+            // Use the comment from either field name
+            const comment = manager_comment || response_note || '';
+
+            const updateData = { 
+                status,
+                updated_at: new Date()
+            };
+
+            // Add comment if provided
+            if (comment) {
+                updateData.manager_comment = comment;
+            }
+
+            // Add approval info if approved
+            if (status === 'approved' && approved_by) {
+                updateData.approved_by = approved_by;
+                updateData.approved_at = new Date();
+            }
 
             const request = await Request.findByIdAndUpdate(
                 id,
-                { 
-                    status, 
-                    response_note,
-                    response_date: new Date()
-                },
+                updateData,
                 { new: true }
-            ).populate('user_id', 'full_name');
+            ).populate('user_id', 'full_name username');
 
             if (!request) {
                 return res.status(404).json({ message: 'Không tìm thấy yêu cầu' });
@@ -115,7 +180,57 @@ module.exports = (io, connectedUsers) => {
             const statusText = status === 'approved' ? 'đã được chấp thuận' : 
                                status === 'rejected' ? 'đã bị từ chối' : 'đang xử lý';
 
-            sendNotification(request.user_id._id, `Yêu cầu của bạn ${statusText}`);
+            // Send notification to request owner
+            if (request.user_id && request.user_id._id) {
+                const userId = request.user_id._id.toString();
+                sendNotification(userId, `Yêu cầu ${request.request_type} của bạn ${statusText}`);
+                
+                // Emit specific event based on status
+                if (status === 'approved') {
+                    const socketId = connectedUsers[userId];
+                    if (socketId) {
+                        io.to(socketId).emit('request_approved', {
+                            requestId: request._id,
+                            type: request.request_type,
+                            title: request.title,
+                            status: status,
+                            comment: comment,
+                            message: `Yêu cầu ${request.request_type} của bạn ${statusText}`,
+                            timestamp: new Date()
+                        });
+                    }
+                } else if (status === 'rejected') {
+                    const socketId = connectedUsers[userId];
+                    if (socketId) {
+                        io.to(socketId).emit('request_rejected', {
+                            requestId: request._id,
+                            type: request.request_type,
+                            title: request.title,
+                            status: status,
+                            comment: comment,
+                            message: `Yêu cầu ${request.request_type} của bạn ${statusText}`,
+                            timestamp: new Date()
+                        });
+                    }
+                }
+            }
+
+            // Emit dashboard event for request status update
+            io.emit('request_status_update', {
+                requestId: request._id,
+                userId: request.user_id?._id,
+                userName: request.user_id?.full_name || request.user_id?.username,
+                status: status,
+                type: request.request_type,
+                message: `Yêu cầu ${request.request_type} của ${request.user_id?.full_name || request.user_id?.username} ${statusText}`,
+                timestamp: new Date()
+            });
+
+            // Update dashboard stats
+            const pendingCount = await Request.countDocuments({ status: 'pending' });
+            io.emit('dashboard_update', {
+                pendingRequests: pendingCount
+            });
 
             res.json({ 
                 message: 'Cập nhật trạng thái yêu cầu thành công', 

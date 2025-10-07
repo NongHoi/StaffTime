@@ -114,10 +114,23 @@ module.exports = (io, connectedUsers) => {
 
             await schedule.save();
 
-            // Notify managers
+            // Notify managers and emit realtime event
             const managers = await User.find({ role_id: { $in: [1, 2] } });
             managers.forEach(manager => {
-                sendNotification(manager._id, `Nhân viên đã đăng ký ca làm mới cho ngày ${date}`);
+                sendNotification(manager._id.toString(), `${req.session.user?.full_name || req.session.user?.username} đã đăng ký ca làm mới cho ngày ${date}`);
+            });
+
+            // Emit new work schedule event
+            io.emit('new_work_schedule', {
+                scheduleId: schedule._id,
+                userId: user_id,
+                userName: req.session.user?.full_name || req.session.user?.username,
+                date: schedule.work_date,
+                shiftType: shift_type,
+                startTime: start_time,
+                endTime: end_time,
+                message: `${req.session.user?.full_name || req.session.user?.username} đăng ký ca ${shift_type} ngày ${new Date(date).toLocaleDateString('vi-VN')}`,
+                timestamp: new Date()
             });
 
             res.json({ 
@@ -146,7 +159,21 @@ module.exports = (io, connectedUsers) => {
                 return res.status(404).json({ message: 'Không tìm thấy lịch làm việc' });
             }
 
-            sendNotification(schedule.user_id._id, `Trạng thái ca làm đã được cập nhật: ${status}`);
+            // Send notification and emit event
+            if (schedule.user_id && schedule.user_id._id) {
+                const userId = schedule.user_id._id.toString();
+                sendNotification(userId, `Trạng thái ca làm đã được cập nhật: ${status === 'approved' ? 'Đã duyệt' : status === 'rejected' ? 'Từ chối' : status}`);
+            }
+
+            // Emit schedule status update event
+            io.emit('work_schedule_update', {
+                scheduleId: schedule._id,
+                userId: schedule.user_id?._id,
+                userName: schedule.user_id?.full_name,
+                status: status,
+                message: `Ca làm của ${schedule.user_id?.full_name} đã được cập nhật: ${status}`,
+                timestamp: new Date()
+            });
 
             res.json({ 
                 message: 'Cập nhật trạng thái thành công', 

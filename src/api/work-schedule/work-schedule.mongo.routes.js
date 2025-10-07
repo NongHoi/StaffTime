@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 module.exports = (io, connectedUsers) => {
-    const workScheduleController = require('./work-schedule.mongo.controller')(io, connectedUsers);
+    // Use the legacy controller that has full CRUD functionality
+    const workScheduleController = require('./work-schedule-legacy.controller')(io, connectedUsers);
 
     // Authentication middleware
     const requireAuth = (req, res, next) => {
@@ -22,11 +23,18 @@ module.exports = (io, connectedUsers) => {
 
     router.use(requireAuth);
 
-    // Routes
-    router.get('/month', workScheduleController.getMonthSchedule);
+    // Routes for viewing schedules (all users)
+    router.get('/month', workScheduleController.getMonthSchedules);
     router.get('/my-registrations', workScheduleController.getMyRegistrations);
-    router.post('/register', workScheduleController.registerWorkSchedule);
-    router.put('/:id/status', requireAdminOrManager, workScheduleController.updateScheduleStatus);
+    router.get('/:id/registrations', workScheduleController.getRegistrations);
+
+    // Routes for employee registration
+    router.post('/register', workScheduleController.registerSchedule);
+
+    // CRUD routes for admin/manager only
+    router.post('/', requireAdminOrManager, workScheduleController.createSchedule);
+    router.put('/:id', requireAdminOrManager, workScheduleController.updateSchedule);
+    router.delete('/:id', requireAdminOrManager, workScheduleController.deleteSchedule);
 
     return router;
 };

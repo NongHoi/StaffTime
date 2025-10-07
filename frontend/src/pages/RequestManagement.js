@@ -49,13 +49,23 @@ const RequestManagement = ({ user }) => {
             const res = await fetch(`/api/requests/${id}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status, reviewer_comment: '' }), // Thêm ô nhập comment sau
+                body: JSON.stringify({ 
+                    status, 
+                    response_note: status === 'approved' ? 'Đã phê duyệt' : 'Đã từ chối' 
+                }),
             });
-            if (!res.ok) throw new Error('Failed to update request');
+            
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.message || `Failed to update request: ${res.status}`);
+            }
+            
             // Cập nhật lại danh sách
-            fetchRequests();
+            await fetchRequests();
+            setError(''); // Clear any previous errors
         } catch (err) {
-            setError(err.message);
+            console.error('Update request error:', err);
+            setError(`Lỗi cập nhật yêu cầu: ${err.message}`);
         }
     };
 
@@ -80,7 +90,7 @@ const RequestManagement = ({ user }) => {
                     <thead>
                         <tr>
                             <th>Nhân viên</th>
-                            <th>Loại</th>
+                            <th>Tiêu đề</th>
                             <th>Từ ngày</th>
                             <th>Đến ngày</th>
                             <th>Lý do</th>
@@ -89,24 +99,33 @@ const RequestManagement = ({ user }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {requests.map(req => (
-                            <tr key={req.id}>
-                                <td>{req.fullname} ({req.username})</td>
-                                <td>Nghỉ phép</td>
-                                <td>{new Date(req.start_date).toLocaleDateString('vi-VN')}</td>
-                                <td>{new Date(req.end_date).toLocaleDateString('vi-VN')}</td>
-                                <td>{req.reason}</td>
-                                <td>{getStatusBadge(req.status)}</td>
-                                <td>
-                                    {req.status === 'pending' && (
-                                        <>
-                                            <Button variant="success" size="sm" onClick={() => handleUpdateRequest(req.id, 'approved')}>Duyệt</Button>{' '}
-                                            <Button variant="danger" size="sm" onClick={() => handleUpdateRequest(req.id, 'rejected')}>Từ chối</Button>
-                                        </>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
+                        {requests.map(req => {
+                            // Handle different response formats
+                            const requestId = req._id || req.id;
+                            const userName = req.user ? req.user.fullname : (req.fullname || 'N/A');
+                            const userLogin = req.user ? req.user.username : (req.username || 'N/A');
+                            const requestTitle = req.title || 'Yêu cầu';
+                            const requestDescription = req.description || req.reason || 'Không có mô tả';
+                            
+                            return (
+                                <tr key={requestId}>
+                                    <td>{userName} ({userLogin})</td>
+                                    <td>{requestTitle}</td>
+                                    <td>{req.start_date ? new Date(req.start_date).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                    <td>{req.end_date ? new Date(req.end_date).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                    <td>{requestDescription}</td>
+                                    <td>{getStatusBadge(req.status)}</td>
+                                    <td>
+                                        {req.status === 'pending' && (
+                                            <>
+                                                <Button variant="success" size="sm" onClick={() => handleUpdateRequest(requestId, 'approved')}>Duyệt</Button>{' '}
+                                                <Button variant="danger" size="sm" onClick={() => handleUpdateRequest(requestId, 'rejected')}>Từ chối</Button>
+                                            </>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </Table>
             </Card.Body>

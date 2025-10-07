@@ -14,8 +14,14 @@ module.exports = (io, connectedUsers) => {
 
     router.use(requireAuth);
 
+    // Test route (no auth required)
+    router.get('/test', (req, res) => {
+        res.json({ message: 'Profile routes working', timestamp: new Date() });
+    });
+
     // Routes
     router.get('/', profileController.getProfile);
+    router.post('/update', profileController.updateProfile);
     router.put('/update', profileController.updateProfile);
 
     return router;
