@@ -59,17 +59,20 @@ const Attendance = ({ user }) => {
   const qrCountdownRef = useRef(null);
 
   const generateQrPayload = useCallback(() => {
-    // Create a time-based token that changes every 30s
-    // Using epoch seconds rounded to 30-second window
+    // Encode a link to the chấm công page; include a rotating param so QR changes every 30s
     const epoch = Math.floor(Date.now() / 1000);
-    const windowSlot = Math.floor(epoch / 30); // changes every 30s
-    const payload = {
-      t: windowSlot,
-      u: user?.id || user?._id || 'me',
-      d: date
-    };
-    return JSON.stringify(payload);
-  }, [user, date]);
+    const windowSlot = Math.floor(epoch / 30);
+    try {
+      const base = typeof window !== 'undefined' ? window.location.origin : '';
+      const url = new URL('/chamcong', base);
+      url.searchParams.set('v', String(windowSlot));
+      url.searchParams.set('d', date);
+      return url.toString();
+    } catch {
+      // Fallback to relative url if origin not available
+      return `/chamcong?v=${windowSlot}&d=${encodeURIComponent(date)}`;
+    }
+  }, [date]);
 
   const refreshQr = useCallback(async () => {
     try {

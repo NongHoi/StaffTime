@@ -5,6 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles/main.css';
 import App from './App';
+import ChamCong from './pages/ChamCong';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './context/AuthContext';
 
@@ -12,7 +14,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <AuthProvider>
-      <App />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/chamcong" element={<ChamCong />} />
+          <Route path="/*" element={<App />} />
+        </Routes>
+      </BrowserRouter>
     </AuthProvider>
   </React.StrictMode>
 );
