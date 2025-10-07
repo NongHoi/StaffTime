@@ -458,3 +458,33 @@
   border-color: #fcd34d;
   color: #92400e;
 }
+
+/* Dashboard Layout */
+.dashboard-layout {
+  min-height: 100vh;
+  background: var(--background);
+}
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  flex: 1;
+  margin-left: 280px;
+  min-height: calc(100vh - 64px);
+  background: var(--background);
+  padding-top: 0;
+  position: relative;
+  z-index: 1;
+  overflow-x: hidden;
+}
+
+/* Mobile responsive */
+@media (max-width: 991.98px) {
+  .dashboard-content {
+    margin-left: 0;
+    width: 100%;
+  }
+}

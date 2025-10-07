@@ -24,11 +24,6 @@ const Header = ({ onLogout, onMenuClick }) => {
           >
             <i className="bi bi-list"></i>
           </button>
-          
-          <div className="header-brand">
-            <i className="bi bi-clock-history me-2"></i>
-            StaffTime
-          </div>
         </div>
 
         <div className="header-right">

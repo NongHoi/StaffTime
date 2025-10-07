@@ -76,7 +76,7 @@ const MyRequests = ({ user }) => {
             <Card.Body>
                 <Card.Title className="d-flex justify-content-between align-items-center">
                     <span>Yêu cầu của tôi</span>
-                    <Button variant="primary" onClick={() => setShowForm(!showForm)}>
+                    <Button variant="primary" size="sm" style={{ width: 'auto', minWidth: '90px', padding: '0.25rem 0.5rem' }} onClick={() => setShowForm(!showForm)}>
                         {showForm ? 'Đóng' : '+ Tạo yêu cầu mới'}
                     </Button>
                 </Card.Title>
@@ -97,7 +97,7 @@ const MyRequests = ({ user }) => {
                             <Form.Label>Lý do</Form.Label>
                             <Form.Control as="textarea" rows={3} value={reason} onChange={e => setReason(e.target.value)} required />
                         </Form.Group>
-                        <Button type="submit">Gửi yêu cầu</Button>
+                        <Button type="submit" size="sm" variant="primary" style={{ width: 'auto', minWidth: '70px', padding: '0.25rem 0.5rem' }}>Gửi yêu cầu</Button>
                     </Form>
                 )}
 

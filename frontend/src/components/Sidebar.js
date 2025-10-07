@@ -2,54 +2,93 @@ import React from 'react';
 import { Offcanvas } from 'react-bootstrap';
 
 const Sidebar = ({ role, active, onNavigate, show, onHide }) => {
-  const navItems = [
-    { key: 'dashboard', label: 'Bảng điều khiển', icon: 'bi-grid' },
-    { key: 'attendance', label: 'Chấm công', icon: 'bi-calendar-check' },
-    { key: 'profile', label: 'Hồ sơ của tôi', icon: 'bi-person' },
-    { key: 'myRequests', label: 'Yêu cầu của tôi', icon: 'bi-journal-text' },
-    { key: 'myPayrolls', label: 'Lương của tôi', icon: 'bi-cash-stack' },
-    // Admin & Manager only
-    { key: 'salary', label: 'Tính lương', icon: 'bi-calculator', roles: [1, 2] },
-    { key: 'savedPayrolls', label: 'Bảng lương đã lưu', icon: 'bi-archive', roles: [1, 2] },
-    { key: 'users', label: 'Quản lý nhân viên', icon: 'bi-people', roles: [1, 2] },
-    { key: 'workSchedule', label: 'Quản lý lịch làm', icon: 'bi-calendar-event', roles: [1, 2] },
-    { key: 'requestManagement', label: 'Quản lý yêu cầu', icon: 'bi-card-checklist', roles: [1, 2] },
-    { key: 'reports', label: 'Báo cáo & Thống kê', icon: 'bi-graph-up', roles: [1, 2] },
-    // Staff only
-    { key: 'registerWorkSchedule', label: 'Đăng ký lịch làm', icon: 'bi-calendar-plus', roles: [3] },
-    { key: 'myRegisteredWorkSchedule', label: 'Lịch làm đã đăng ký', icon: 'bi-calendar-week', roles: [3] },
+  // Menu structure with groups
+  const menuStructure = [
+    {
+      title: 'TỔNG QUAN',
+      items: [
+        { key: 'dashboard', label: 'Bảng điều khiển', icon: 'bi-speedometer2' },
+      ]
+    },
+    {
+      title: 'CÁ NHÂN',
+      items: [
+        { key: 'profile', label: 'Hồ sơ của tôi', icon: 'bi-person-circle' },
+        { key: 'attendance', label: 'Chấm công', icon: 'bi-calendar-check-fill' },
+        { key: 'myRequests', label: 'Yêu cầu của tôi', icon: 'bi-journal-text' },
+        { key: 'myPayrolls', label: 'Lương của tôi', icon: 'bi-wallet2' },
+      ]
+    },
+    {
+      title: 'QUẢN LÝ',
+      roles: [1, 2],
+      items: [
+        { key: 'users', label: 'Nhân viên', icon: 'bi-people-fill' },
+        { key: 'workSchedule', label: 'Lịch làm việc', icon: 'bi-calendar3' },
+        { key: 'requestManagement', label: 'Yêu cầu', icon: 'bi-card-checklist' },
+        { key: 'salary', label: 'Tính lương', icon: 'bi-calculator-fill' },
+        { key: 'savedPayrolls', label: 'Bảng lương', icon: 'bi-file-earmark-text-fill' },
+        { key: 'reports', label: 'Báo cáo', icon: 'bi-graph-up-arrow' },
+      ]
+    },
+    {
+      title: 'LỊCH LÀM VIỆC',
+      roles: [3],
+      items: [
+        { key: 'registerWorkSchedule', label: 'Đăng ký lịch làm', icon: 'bi-calendar-plus-fill' },
+        { key: 'myRegisteredWorkSchedule', label: 'Lịch đã đăng ký', icon: 'bi-calendar-week' },
+      ]
+    }
   ];
 
-  const renderNavItems = (isMobile = false) => {
-    return navItems.map(item => {
-      if (item.roles === undefined || item.roles.includes(role)) {
-        return (
-          <button
-            key={item.key}
-            type="button"
-            className={`nav-link ${active === item.key ? 'active' : ''}`}
-            onClick={() => { 
-              onNavigate(item.key); 
-              if (isMobile && onHide) onHide(); 
-            }}
-          >
-            <i className={item.icon}></i>
-            <span>{item.label}</span>
-          </button>
-        );
+  const renderMenuGroups = (isMobile = false) => {
+    return menuStructure.map((group, idx) => {
+      // Check if group should be displayed based on role
+      if (group.roles && !group.roles.includes(role)) {
+        return null;
       }
-      return null;
+
+      return (
+        <div key={idx} className="nav-group">
+          <div className="nav-group-title">{group.title}</div>
+          {group.items.map(item => {
+            if (item.roles === undefined || item.roles.includes(role)) {
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  className={`nav-link ${active === item.key ? 'active' : ''}`}
+                  onClick={() => { 
+                    onNavigate(item.key); 
+                    if (isMobile && onHide) onHide(); 
+                  }}
+                >
+                  <i className={item.icon}></i>
+                  <span>{item.label}</span>
+                </button>
+              );
+            }
+            return null;
+          })}
+        </div>
+      );
     });
   };
 
   // Mobile Offcanvas
   if (show !== undefined && onHide) {
     return (
-      <Offcanvas show={show} onHide={onHide} placement="start" className="sidebar">
-        <Offcanvas.Header closeButton className="sidebar-header">
+      <Offcanvas show={show} onHide={onHide} placement="start" className="sidebar-mobile">
+        <Offcanvas.Header closeButton className="sidebar-header border-bottom">
+          <div className="sidebar-brand">
+            <i className="bi bi-clock-history"></i>
+            <span>StaffTime</span>
+          </div>
         </Offcanvas.Header>
-        <Offcanvas.Body className="sidebar-nav p-0">
-          {renderNavItems(true)}
+        <Offcanvas.Body className="p-0">
+          <nav className="sidebar-nav">
+            {renderMenuGroups(true)}
+          </nav>
         </Offcanvas.Body>
       </Offcanvas>
     );
@@ -58,8 +97,14 @@ const Sidebar = ({ role, active, onNavigate, show, onHide }) => {
   // Desktop Sidebar
   return (
     <div className="sidebar">
+      <div className="sidebar-header">
+        <div className="sidebar-brand">
+          <i className="bi bi-clock-history"></i>
+          <span>StaffTime</span>
+        </div>
+      </div>
       <nav className="sidebar-nav">
-        {renderNavItems()}
+        {renderMenuGroups()}
       </nav>
     </div>
   );

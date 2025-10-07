@@ -1,0 +1,370 @@
+/* Clean Minimalist Authentication Pages */
+@import url('./LiquidGlass.css');
+
+/* Home Link - Top Left */
+.home-link-top {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+.home-link-top a {
+  color: #666666;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e0e0e0;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.home-link-top a:hover {
+  color: #333333;
+  background: #f8f9fa;
+  text-decoration: none;
+}
+
+/* Auth Container */
+.auth-container {
+  min-height: 100vh;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Auth Card */
+.auth-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Auth Header */
+.auth-header {
+  margin-bottom: 2.5rem;
+}
+
+.auth-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.auth-subtitle {
+  color: #666666;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.auth-logo {
+  display: none; /* Hide logo for clean look */
+}
+
+/* Form Styles */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 0.375rem;
+}
+
+.form-label i {
+  display: none; /* Hide icons for clean look */
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-family: inherit;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #1a1a1a;
+  box-shadow: none;
+}
+
+.form-control::placeholder {
+  color: #999999;
+  font-weight: 400;
+}
+
+/* Buttons */
+.btn-primary {
+  width: 100%;
+  padding: 1rem;
+  background: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: white;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 1rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #333333;
+}
+
+.btn-primary:active {
+  background: #000000;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-google {
+  width: 100%;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.btn-google:hover {
+  background: #f8f8f8;
+  border-color: #d1d1d1;
+}
+
+.btn-outline {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666666;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-outline:hover {
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+  background: #fafafa;
+}
+
+/* Loading Spinner */
+.loading {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Alerts */
+.alert {
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  border: none;
+}
+
+.alert-danger {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.alert-success {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.alert i {
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+/* Forgot Password Link */
+.forgot-password {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.forgot-password a {
+  color: #666666;
+  font-size: 0.875rem;
+  text-decoration: none;
+  font-weight: 400;
+}
+
+.forgot-password a:hover {
+  color: #1a1a1a;
+  text-decoration: underline;
+}
+
+/* Auth Switch */
+.auth-switch {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: #666666;
+}
+
+.auth-switch a {
+  color: #1a1a1a;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+/* Loading Spinner */
+.loading {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 1rem;
+  }
+  
+  .auth-card {
+    padding: 2rem 1.5rem;
+    max-width: 360px;
+  }
+  
+  .auth-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 1.5rem 1rem;
+    border-radius: 8px;
+    margin: 0 0.5rem;
+  }
+  
+  .form-control {
+    padding: 0.75rem;
+  }
+  
+  .btn-primary,
+  .btn-google {
+    padding: 0.75rem;
+  }
+  
+  .auth-title {
+    font-size: 1.375rem;
+  }
+}
+
+/* Focus states for accessibility */
+.form-control:focus,
+.btn-primary:focus,
+.btn-google:focus,
+.btn-outline:focus {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 2px;
+}
+
+/* Form validation states */
+.form-control.is-invalid {
+  border-color: #dc2626;
+}
+
+.form-control.is-valid {
+  border-color: #16a34a;
+}
+
+/* Additional hover states */
+.form-control:hover {
+  border-color: #d1d1d1;
+}
+
+/* Google icon styling */
+.btn-google svg {
+  flex-shrink: 0;
+}

@@ -194,16 +194,19 @@ const Attendance = ({ user }) => {
             </Col>
             {user?.type === 'fulltime' ? (
               <>
-                <Col md={3}>
+                <Col md={4}>
                   <Form.Group>
                     <Form.Label>Ghi chú</Form.Label>
                     <Form.Control type="text" value={outNote} onChange={e => setOutNote(e.target.value)} placeholder="Ghi chú (nếu có)" />
                   </Form.Group>
                 </Col>
-                <Col md={3}>
-                  <Button variant="primary" style={{ background: '#6c63ff', border: 'none', marginTop: 30 }} onClick={handleCheckShow} disabled={loading}>
-                    Chấm công show hôm nay
-                  </Button>
+                <Col md={5}>
+                  <Form.Group>
+                    <Form.Label style={{ visibility: 'hidden' }}>.</Form.Label>
+                    <Button variant="primary" className="w-100" style={{ background: '#6c63ff', border: 'none', height: 'calc(1.5em + 0.75rem + 2px)', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={handleCheckShow} disabled={loading}>
+                      Chấm công show hôm nay
+                    </Button>
+                  </Form.Group>
                 </Col>
               </>
             ) : (
@@ -214,15 +217,26 @@ const Attendance = ({ user }) => {
                     <Form.Control type="time" value={inTime} onChange={e => setInTime(e.target.value)} />
                   </Form.Group>
                 </Col>
-                <Col md={2}>
-                  <Button variant="primary" style={{ background: '#6c63ff', border: 'none' }} onClick={handleCheckIn} disabled={loading || !inTime}>
-                    Chấm công in
-                  </Button>
+                <Col md={1}>
+                  <Form.Group>
+                    <Form.Label style={{ visibility: 'hidden' }}>.</Form.Label>
+                    <Button variant="primary" className="w-100" style={{ background: '#6c63ff', border: 'none', height: 'calc(1.5em + 0.75rem + 2px)', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={handleCheckIn} disabled={loading || !inTime}>
+                      Vào
+                    </Button>
+                  </Form.Group>
                 </Col>
                 <Col md={2}>
                   <Form.Group>
                     <Form.Label>Giờ ra</Form.Label>
                     <Form.Control type="time" value={outTime} onChange={e => setOutTime(e.target.value)} />
+                  </Form.Group>
+                </Col>
+                <Col md={1}>
+                  <Form.Group>
+                    <Form.Label style={{ visibility: 'hidden' }}>.</Form.Label>
+                    <Button variant="primary" className="w-100" style={{ background: '#6c63ff', border: 'none', height: 'calc(1.5em + 0.75rem + 2px)', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={handleCheckOut} disabled={loading || !outTime}>
+                     Ra
+                    </Button>
                   </Form.Group>
                 </Col>
                 <Col md={3}>

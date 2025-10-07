@@ -6,13 +6,18 @@
   min-height: 100vh;
   background: var(--background);
   position: relative;
+  overflow-x: hidden;
 }
 
 /* Content Area */
 .main-content {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 280px;
   transition: var(--transition);
+  min-height: 100vh;
+  width: calc(100% - 280px);
+  position: relative;
+  z-index: 1;
 }
 
 /* Top Navigation Bar */
@@ -173,8 +178,9 @@
 
 /* Page Content */
 .page-content {
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg);
   min-height: calc(100vh - 64px);
+  background: var(--background);
 }
 
 /* Breadcrumb */
@@ -206,6 +212,7 @@
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
+    width: 100%;
   }
   
   .top-navbar {
@@ -232,6 +239,10 @@
   
   .navbar-title {
     font-size: 1.125rem;
+  }
+  
+  .page-content {
+    padding: var(--spacing-sm);
   }
 }
 
