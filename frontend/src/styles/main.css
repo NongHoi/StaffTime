@@ -76,20 +76,20 @@ body {
 
 /* Modern Form Styles */
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .form-label {
   display: block;
   font-weight: 500;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 
 .form-control {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
   border: 2px solid #e5e7eb;
   border-radius: var(--border-radius);
   font-size: 0.875rem;
@@ -105,7 +105,7 @@ body {
 }
 
 .btn {
-  padding: 0.75rem 1.5rem;
+  padding: 0.625rem 1.25rem;
   border: none;
   border-radius: var(--border-radius);
   font-weight: 500;
@@ -116,7 +116,7 @@ body {
   gap: 0.5rem;
   transition: var(--transition);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 
 .btn-primary {
@@ -228,16 +228,16 @@ body {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   color: white;
   border-radius: var(--border-radius) var(--border-radius) 0 0;
-  padding: 1.25rem 1.5rem;
+  padding: 0.875rem 1.25rem;
   border-bottom: none;
 }
 
 .card-body {
-  padding: 1.5rem;
+  padding: 1.25rem;
 }
 
 .card-title {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0;
 }
@@ -259,14 +259,15 @@ body {
   border-bottom: 2px solid #e5e7eb;
   font-weight: 600;
   color: #374151;
-  padding: 1rem;
-  font-size: 0.875rem;
+  padding: 0.75rem;
+  font-size: 0.8125rem;
 }
 
 .table tbody td {
-  padding: 1rem;
+  padding: 0.75rem;
   border-bottom: 1px solid #f3f4f6;
   vertical-align: middle;
+  font-size: 0.875rem;
 }
 
 .table tbody tr:hover {
@@ -275,8 +276,8 @@ body {
 
 /* Badge Styles */
 .badge {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 500;
   border-radius: 9999px;
 }
@@ -299,14 +300,14 @@ body {
 /* Dashboard Stats */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .stat-card {
   background: white;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
   display: flex;
@@ -321,13 +322,13 @@ body {
 }
 
 .stat-icon {
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: white;
 }
 
@@ -344,15 +345,15 @@ body {
 }
 
 .stat-content h3 {
-  font-size: 1.875rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.125rem;
   color: #1f2937;
 }
 
 .stat-content p {
   color: var(--secondary-color);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   margin-bottom: 0;
 }
 
@@ -368,10 +369,19 @@ body {
   color: white;
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   border-bottom: none;
+  padding: 0.875rem 1.25rem;
 }
 
 .modal-header .btn-close {
   filter: invert(1);
+}
+
+.modal-body {
+  padding: 1.25rem;
+}
+
+.modal-footer {
+  padding: 0.875rem 1.25rem;
 }
 
 /* Responsive Design */
@@ -602,11 +612,12 @@ body {
 
 /* Success/Error Messages */
 .alert {
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 1rem;
   border-radius: var(--border-radius);
   border: none;
   margin-bottom: 1rem;
   font-weight: 500;
+  font-size: 0.875rem;
 }
 
 .alert-success {

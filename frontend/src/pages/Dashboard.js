@@ -32,7 +32,7 @@ const Dashboard = ({ onLogout, user }) => {
     pendingRequests: 0,
     totalEmployees: 0,
     onlineUsers: 0,
-    todayWorkSchedules: 0
+    monthWorkSchedules: 0 // Changed from todayWorkSchedules
   });
   
   const [recentActivities, setRecentActivities] = useState([]);
@@ -167,7 +167,7 @@ const Dashboard = ({ onLogout, user }) => {
   const handleNewWorkSchedule = (data) => {
     setDashboardStats(prev => ({ 
       ...prev, 
-      todayWorkSchedules: prev.todayWorkSchedules + 1 
+      monthWorkSchedules: prev.monthWorkSchedules + 1 // Changed from todayWorkSchedules
     }));
     
     const shiftText = {
@@ -306,11 +306,11 @@ const Dashboard = ({ onLogout, user }) => {
             <Card className="stat-card glass-hover h-100 animate-scale-in">
               <Card.Body className="d-flex align-items-center">
                 <div className="stat-icon bg-primary me-3" style={{width: '50px', height: '50px'}}>
-                  <i className="bi bi-calendar-plus"></i>
+                  <i className="bi bi-calendar-month"></i>
                 </div>
                 <div>
-                  <h4 className="mb-0" style={{fontSize: '2rem', fontWeight: 'var(--font-weight-bold)'}}>{dashboardStats.todayWorkSchedules}</h4>
-                  <p className="mb-0">Lịch làm hôm nay</p>
+                  <h4 className="mb-0" style={{fontSize: '2rem', fontWeight: 'var(--font-weight-bold)'}}>{dashboardStats.monthWorkSchedules || 0}</h4>
+                  <p className="mb-0">Lịch làm tháng này</p>
                 </div>
               </Card.Body>
             </Card>

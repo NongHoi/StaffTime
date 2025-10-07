@@ -14,7 +14,7 @@ router.get('/api/dashboard/stats', async (req, res) => {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Get total employees count
-    const totalEmployees = await User.countDocuments({ role: { $gte: 2 } });
+    const totalEmployees = await User.countDocuments();
 
     // Get today's attendance
     const todayAttendance = await Attendance.countDocuments({
@@ -45,14 +45,20 @@ router.get('/api/dashboard/stats', async (req, res) => {
       return total;
     }, 0);
 
-    // Get online users count (simulation - in real app, track active sessions)
-    const onlineUsers = Math.floor(totalEmployees * 0.6); // 60% online rate simulation
+    // Get online users count from Socket.IO (real tracking)
+    // Pass connectedUsers if available, otherwise simulate
+    const onlineUsers = req.app.locals.connectedUsers 
+      ? Object.keys(req.app.locals.connectedUsers).length 
+      : 0;
 
-    // Get today's work schedules
-    const todayWorkSchedules = await WorkSchedule.countDocuments({
-      date: {
-        $gte: today,
-        $lt: tomorrow
+    // Get this month's work schedules (changed from today)
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
+    
+    const monthWorkSchedules = await WorkSchedule.countDocuments({
+      work_date: {
+        $gte: startOfMonth,
+        $lte: endOfMonth
       }
     });
 
@@ -60,9 +66,9 @@ router.get('/api/dashboard/stats', async (req, res) => {
       totalEmployees,
       todayAttendance,
       pendingRequests,
-      todayHours: todayHours / Math.max(todayAttendance, 1), // Average hours per person
+      todayHours: todayAttendance > 0 ? todayHours / todayAttendance : 0, // Average hours per person
       onlineUsers,
-      todayWorkSchedules
+      monthWorkSchedules // Changed from todayWorkSchedules
     };
 
     res.json(stats);

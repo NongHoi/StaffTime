@@ -41,6 +41,17 @@ io.on('connection', (socket) => {
   if (userId) {
     connectedUsers[userId] = socket.id;
     console.log(`User connected: ${userId} with socket ID: ${socket.id}`);
+    
+    // Emit user online event to all clients
+    io.emit('user_online', { 
+      userId, 
+      onlineCount: Object.keys(connectedUsers).length 
+    });
+    
+    // Send online users count update to dashboard
+    io.emit('dashboard_update', { 
+      onlineUsers: Object.keys(connectedUsers).length 
+    });
   }
 
   socket.on('disconnect', () => {
@@ -48,10 +59,22 @@ io.on('connection', (socket) => {
     for (const [id, socketId] of Object.entries(connectedUsers)) {
       if (socketId === socket.id) {
         delete connectedUsers[id];
+        console.log(`User disconnected: ${id}`);
+        
+        // Emit user offline event to all clients
+        io.emit('user_offline', { 
+          userId: id, 
+          onlineCount: Object.keys(connectedUsers).length 
+        });
+        
+        // Send online users count update to dashboard
+        io.emit('dashboard_update', { 
+          onlineUsers: Object.keys(connectedUsers).length 
+        });
         break;
       }
     }
-    console.log('User disconnected:', socket.id);
+    console.log('Socket disconnected:', socket.id);
   });
 });
 
@@ -69,6 +92,9 @@ const workScheduleRoutes = require('./api/work-schedule/work-schedule.mongo.rout
 const requestRoutes = require('./api/requests/requests.mongo.routes')(io, connectedUsers);
 const configRoutes = require('./api/config/config.mongo.routes')(io, connectedUsers);
 const dashboardRoutes = require('./routes/dashboard.mongo.routes');
+
+// Make connectedUsers available to all routes
+app.locals.connectedUsers = connectedUsers;
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
