@@ -6,6 +6,7 @@ const payrollSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  // Period information
   pay_period_start: {
     type: Date,
     required: true
@@ -14,6 +15,44 @@ const payrollSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  // Legacy fields for compatibility with frontend
+  month: {
+    type: Number,
+    required: true
+  },
+  year: {
+    type: Number,
+    required: true
+  },
+  total_day: {
+    type: Number,
+    default: 0
+  },
+  total_night: {
+    type: Number,
+    default: 0
+  },
+  day_shift_rate: {
+    type: Number,
+    default: 0
+  },
+  night_shift_rate: {
+    type: Number,
+    default: 0
+  },
+  allowance: {
+    type: Number,
+    default: 0
+  },
+  bonus: {
+    type: Number,
+    default: 0
+  },
+  total: {
+    type: Number,
+    required: true
+  },
+  // Standard payroll fields
   regular_hours: {
     type: Number,
     default: 0

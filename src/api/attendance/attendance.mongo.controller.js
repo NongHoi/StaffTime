@@ -188,7 +188,20 @@ module.exports = (io, connectedUsers) => {
                 id: newAttendance._id
             };
 
+            // Send notification and emit realtime event
             sendNotification(user_id, 'Chấm công vào ca thành công');
+            
+            // Emit new attendance event for dashboard
+            io.emit('new_attendance', {
+                userId: user_id,
+                userName: req.session.user?.full_name || req.session.user?.username,
+                type: 'check_in',
+                shiftType: shift_type,
+                date: targetDate,
+                message: `${req.session.user?.full_name || req.session.user?.username} vừa chấm công vào ca ${shift_type === 'day' ? 'ngày' : 'đêm'}`,
+                timestamp: new Date()
+            });
+
             res.json({ message: 'Chấm công thành công', attendance: result });
         } catch (err) {
             console.error('checkIn error:', err);
@@ -236,7 +249,20 @@ module.exports = (io, connectedUsers) => {
 
             await attendance.save();
 
+            // Send notification and emit realtime event
             sendNotification(user_id, 'Chấm công ra ca thành công');
+            
+            // Emit checkout event for dashboard
+            io.emit('new_attendance', {
+                userId: user_id,
+                userName: req.session.user?.full_name || req.session.user?.username,
+                type: 'check_out',
+                totalHours: attendance.total_hours,
+                overtimeHours: attendance.overtime_hours || 0,
+                message: `${req.session.user?.full_name || req.session.user?.username} vừa chấm công ra ca (${attendance.total_hours}h)`,
+                timestamp: new Date()
+            });
+
             res.json({ message: 'Chấm công ra ca thành công', attendance });
         } catch (err) {
             console.error('checkOut error:', err);
@@ -403,7 +429,19 @@ module.exports = (io, connectedUsers) => {
 
             await newSchedule.save();
 
+            // Send notification and emit realtime event
             sendNotification(user_id, 'Chấm công show thành công');
+            
+            // Emit show check-in event
+            io.emit('new_attendance', {
+                userId: user_id,
+                userName: req.session.user?.full_name || req.session.user?.username,
+                type: 'check_in_show',
+                date: targetDate,
+                message: `${req.session.user?.full_name || req.session.user?.username} vừa chấm công show`,
+                timestamp: new Date()
+            });
+
             res.json({ message: 'Chấm công show thành công', schedule: newSchedule });
         } catch (err) {
             console.error('checkInShow error:', err);

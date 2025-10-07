@@ -144,35 +144,63 @@ const Salary = ({ user }) => {
 
   // Lưu bảng lương đã tính
   const handleSavePayroll = async () => {
-    if (!selectedUser || !result) return;
+    if (!selectedUser || !result) {
+      alert('Vui lòng tính lương trước khi lưu');
+      return;
+    }
+    
     try {
+      const totalCalculated = result.total || (
+        Number(result.totalDay || 0) * Number(result.day_shift_rate || 0) +
+        Number(result.totalNight || 0) * Number(result.night_shift_rate || 0) +
+        Number(allowance || 0) +
+        Number(bonus || 0)
+      );
+      
+      if (!totalCalculated || totalCalculated <= 0) {
+        alert('Tổng lương không hợp lệ');
+        return;
+      }
+      
       const body = {
         user_id: selectedUser.id,
-        month,
-        year,
-        total_day: result.totalDay,
-        total_night: result.totalNight,
-        day_shift_rate: result.day_shift_rate,
-        night_shift_rate: result.night_shift_rate,
-        allowance: Number(allowance) || 0,
-        bonus: Number(bonus) || 0,
-        total: result.total || (
-          Number(result.totalDay) * Number(result.day_shift_rate || 0) +
-          Number(result.totalNight) * Number(result.night_shift_rate || 0) +
-          Number(allowance || 0) +
-          Number(bonus || 0)
-        )
+        month: Number(month),
+        year: Number(year),
+        total_day: Number(result.totalDay || 0),
+        total_night: Number(result.totalNight || 0),
+        day_shift_rate: Number(result.day_shift_rate || 0),
+        night_shift_rate: Number(result.night_shift_rate || 0),
+        allowance: Number(allowance || 0),
+        bonus: Number(bonus || 0),
+        total: totalCalculated
       };
+      
+      console.log('Saving payroll with data:', body);
+      
       const res = await fetch('/api/payroll', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
+      
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        console.error('Non-JSON response:', text);
+        throw new Error('Server trả về định dạng không đúng');
+      }
+      
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Lưu bảng lương thất bại');
+      console.log('Save payroll response:', data);
+      
+      if (!res.ok) {
+        throw new Error(data.message || `Lưu bảng lương thất bại: ${res.status}`);
+      }
+      
       alert('Đã lưu bảng lương thành công!');
     } catch (err) {
-      alert('Lỗi lưu bảng lương: ' + (err.message || ''));
+      console.error('Save payroll error:', err);
+      alert('Lỗi lưu bảng lương: ' + (err.message || 'Lỗi không xác định'));
     }
   };
 

@@ -28,6 +28,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  bank_account_number: {
+    type: String,
+    trim: true
+  },
+  bank_name: {
+    type: String,
+    trim: true
+  },
   role_id: {
     type: Number,
     required: true,

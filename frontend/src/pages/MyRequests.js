@@ -34,24 +34,31 @@ const MyRequests = ({ user }) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    request_type: 'leave',
+                    title: 'Xin nghỉ phép',
+                    description: reason,
                     start_date: startDate,
-                    end_date: endDate,
-                    reason: reason,
-                    request_type: 'leave'
+                    end_date: endDate
                 }),
             });
+            
             if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.message || 'Gửi yêu cầu thất bại');
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || `Gửi yêu cầu thất bại: ${res.status}`);
             }
+            
             // Reset form and hide
             setStartDate('');
             setEndDate('');
             setReason('');
             setShowForm(false);
+            setError(''); // Clear any previous errors
+            
             // Refresh list
-            fetchMyRequests();
+            await fetchMyRequests();
+            
         } catch (err) {
+            console.error('Submit request error:', err);
             setError(err.message);
         }
     };
@@ -97,7 +104,7 @@ const MyRequests = ({ user }) => {
                 <Table striped bordered hover responsive className="mt-3">
                     <thead>
                         <tr>
-                            <th>Loại</th>
+                            <th>Tiêu đề</th>
                             <th>Từ ngày</th>
                             <th>Đến ngày</th>
                             <th>Lý do</th>
@@ -106,16 +113,24 @@ const MyRequests = ({ user }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {requests.map(req => (
-                            <tr key={req.id}>
-                                <td>Nghỉ phép</td>
-                                <td>{new Date(req.start_date).toLocaleDateString('vi-VN')}</td>
-                                <td>{new Date(req.end_date).toLocaleDateString('vi-VN')}</td>
-                                <td>{req.reason}</td>
-                                <td>{getStatusBadge(req.status)}</td>
-                                <td>{req.reviewer_comment}</td>
-                            </tr>
-                        ))}
+                        {requests.map(req => {
+                            // Handle different response formats
+                            const requestId = req._id || req.id;
+                            const requestTitle = req.title || 'Yêu cầu';
+                            const requestDescription = req.description || req.reason || 'Không có mô tả';
+                            const managerComment = req.manager_comment || req.reviewer_comment || '';
+                            
+                            return (
+                                <tr key={requestId}>
+                                    <td>{requestTitle}</td>
+                                    <td>{req.start_date ? new Date(req.start_date).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                    <td>{req.end_date ? new Date(req.end_date).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                    <td>{requestDescription}</td>
+                                    <td>{getStatusBadge(req.status)}</td>
+                                    <td>{managerComment || 'Chưa có phản hồi'}</td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </Table>
             </Card.Body>

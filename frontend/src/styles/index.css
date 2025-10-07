@@ -1,0 +1,107 @@
+/* Apple Liquid Glass Design System */
+/* Import all component styles */
+
+@import url('./LiquidGlass.css');
+@import url('./MainLayout.css');
+@import url('./Sidebar.css');
+@import url('./Dashboard.css');
+@import url('./Forms.css');
+
+/* Additional Global Utilities */
+
+/* Text Utilities */
+.text-glass {
+  color: var(--glass-dark);
+}
+
+.text-muted-glass {
+  color: var(--apple-gray);
+}
+
+/* Background Utilities */
+.bg-glass {
+  background: var(--glass-white);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+}
+
+.bg-glass-dark {
+  background: var(--glass-dark);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Spacing Utilities */
+.p-glass { padding: var(--spacing-lg); }
+.px-glass { padding-left: var(--spacing-lg); padding-right: var(--spacing-lg); }
+.py-glass { padding-top: var(--spacing-lg); padding-bottom: var(--spacing-lg); }
+.m-glass { margin: var(--spacing-lg); }
+.mx-glass { margin-left: var(--spacing-lg); margin-right: var(--spacing-lg); }
+.my-glass { margin-top: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+
+/* Border Radius Utilities */
+.rounded-glass { border-radius: var(--radius-lg); }
+.rounded-glass-sm { border-radius: var(--radius-sm); }
+.rounded-glass-xl { border-radius: var(--radius-xl); }
+.rounded-glass-2xl { border-radius: var(--radius-2xl); }
+
+/* Shadow Utilities */
+.shadow-glass { box-shadow: var(--shadow-lg); }
+.shadow-glass-sm { box-shadow: var(--shadow-sm); }
+.shadow-glass-xl { box-shadow: var(--shadow-xl); }
+
+/* Hover Effects */
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 30px rgba(0, 122, 255, 0.3);
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--glass-border);
+  border-radius: var(--radius-full);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--apple-blue);
+  border-radius: var(--radius-full);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--apple-purple);
+}
+
+/* Print Styles */
+@media print {
+  .glass, .glass-heavy, .glass-dark {
+    background: white !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+  
+  .sidebar, .fab {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+  }
+}

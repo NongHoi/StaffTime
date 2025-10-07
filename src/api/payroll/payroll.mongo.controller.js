@@ -11,6 +11,8 @@ module.exports = (io, connectedUsers) => {
 
     const createPayroll = async (req, res) => {
         try {
+            console.log('createPayroll received data:', req.body);
+            
             const { 
                 user_id, 
                 month, 
@@ -25,51 +27,85 @@ module.exports = (io, connectedUsers) => {
             } = req.body;
 
             if (!user_id || !month || !year) {
-                return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' });
+                return res.status(400).json({ message: 'Thiếu thông tin bắt buộc: user_id, month, year' });
+            }
+
+            if (!total && total !== 0) {
+                return res.status(400).json({ message: 'Thiếu thông tin tổng lương' });
             }
 
             // Check if payroll already exists for this user and month
+            const startOfMonth = new Date(year, month - 1, 1);
+            const endOfMonth = new Date(year, month, 0);
+            
             const existing = await Payroll.findOne({
                 user_id: user_id,
-                pay_period_start: new Date(year, month - 1, 1)
+                pay_period_start: {
+                    $gte: startOfMonth,
+                    $lte: endOfMonth
+                }
             });
 
             if (existing) {
-                return res.status(400).json({ message: 'Bảng lương tháng này đã tồn tại' });
+                return res.status(400).json({ message: `Bảng lương tháng ${month}/${year} đã tồn tại` });
             }
 
-            const regularPay = (total_day * day_shift_rate) + (total_night * night_shift_rate);
-            const grossSalary = regularPay + allowance + bonus;
-            const deductions = grossSalary * 0.1; // 10% tax/insurance
+            // Calculate values
+            const regularPay = (Number(total_day) * Number(day_shift_rate)) + (Number(total_night) * Number(night_shift_rate));
+            const totalAllowanceBonus = Number(allowance) + Number(bonus);
+            const grossSalary = regularPay + totalAllowanceBonus;
+            const deductions = Math.round(grossSalary * 0.1); // 10% tax/insurance  
             const netSalary = grossSalary - deductions;
 
             const payroll = new Payroll({
                 user_id: user_id,
-                pay_period_start: new Date(year, month - 1, 1),
-                pay_period_end: new Date(year, month, 0),
-                regular_hours: total_day + total_night,
+                pay_period_start: startOfMonth,
+                pay_period_end: endOfMonth,
+                // Legacy fields for frontend compatibility
+                month: Number(month),
+                year: Number(year),
+                total_day: Number(total_day),
+                total_night: Number(total_night),
+                day_shift_rate: Number(day_shift_rate),
+                night_shift_rate: Number(night_shift_rate),
+                allowance: Number(allowance),
+                bonus: Number(bonus),
+                total: Number(total),
+                // Standard payroll fields
+                regular_hours: Number(total_day) + Number(total_night),
                 overtime_hours: 0,
                 regular_pay: regularPay,
                 overtime_pay: 0,
-                gross_salary: grossSalary,
+                gross_salary: Number(total) || grossSalary,
                 deductions: deductions,
-                net_salary: netSalary,
+                net_salary: Number(total) ? (Number(total) - deductions) : netSalary,
                 pay_date: new Date(),
                 status: 'pending'
             });
 
             await payroll.save();
+            console.log('Payroll saved successfully:', payroll._id);
 
-            sendNotification(user_id, `Bảng lương tháng ${month}/${year} đã được tạo`);
+            // Send notification
+            try {
+                sendNotification(user_id, `Bảng lương tháng ${month}/${year} đã được tạo`);
+            } catch (notifError) {
+                console.error('Notification error:', notifError);
+                // Don't fail the request if notification fails
+            }
 
             res.json({ 
-                message: 'Tạo bảng lương thành công', 
+                message: 'Lưu bảng lương thành công', 
                 payroll 
             });
 
         } catch (err) {
             console.error('createPayroll error:', err);
-            res.status(500).json({ message: err.message || 'Lỗi server' });
+            if (err.code === 11000) {
+                res.status(400).json({ message: 'Bảng lương đã tồn tại' });
+            } else {
+                res.status(500).json({ message: err.message || 'Lỗi server khi lưu bảng lương' });
+            }
         }
     };
 
