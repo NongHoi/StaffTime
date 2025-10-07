@@ -22,11 +22,11 @@
 }
 
 .welcome-card .card-body {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
 }
 
 .welcome-card h2 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: var(--font-weight-semibold);
   color: var(--gray-900);
   margin-bottom: var(--spacing-xs);
@@ -34,7 +34,7 @@
 
 .welcome-card p {
   color: var(--gray-600);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   margin-bottom: 0;
 }
 
@@ -55,22 +55,22 @@
 }
 
 .stat-card .card-body {
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm);
   display: flex;
   align-items: center;
 }
 
 .stat-icon {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: white;
-  margin-right: var(--spacing-md);
+  margin-right: var(--spacing-sm);
   flex-shrink: 0;
 }
 
@@ -81,7 +81,7 @@
 .stat-icon.bg-info { background: var(--primary-blue); }
 
 .stat-card h3 {
-  font-size: 1.5rem;
+  font-size: 1.375rem;
   font-weight: var(--font-weight-bold);
   color: var(--gray-900);
   margin-bottom: var(--spacing-xs);
@@ -89,7 +89,7 @@
 }
 
 .stat-card p {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: var(--gray-600);
   margin-bottom: 0;
   font-weight: var(--font-weight-medium);
@@ -112,7 +112,7 @@
 }
 
 .activity-list {
-  max-height: 400px;
+  max-height: 350px;
   overflow-y: auto;
 }
 
@@ -253,12 +253,12 @@
   background: var(--white);
   border-bottom: 1px solid var(--gray-200);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-md);
 }
 
 .card-title {
   margin-bottom: 0;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: var(--font-weight-semibold);
   color: var(--gray-900);
   display: flex;
@@ -267,19 +267,19 @@
 
 .card-title i {
   margin-right: var(--spacing-sm);
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--primary-blue);
 }
 
 .card-body {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
 }
 
 /* Status Badges - Clean Style */
 .badge {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: var(--font-weight-medium);
-  padding: 4px 8px;
+  padding: 3px 7px;
   border-radius: var(--radius-sm);
   border: none;
 }
@@ -383,31 +383,31 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-home {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
   }
   
   .stat-card h3 {
-    font-size: 1.25rem;
-  }
-  
-  .welcome-card .card-body {
-    padding: var(--spacing-md);
-  }
-  
-  .welcome-card h2 {
     font-size: 1.125rem;
   }
   
+  .welcome-card .card-body {
+    padding: var(--spacing-sm);
+  }
+  
+  .welcome-card h2 {
+    font-size: 1rem;
+  }
+  
   .card-body {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
   }
   
   .card-header {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
   }
   
   .activity-list {
-    max-height: 300px;
+    max-height: 250px;
   }
 }
 

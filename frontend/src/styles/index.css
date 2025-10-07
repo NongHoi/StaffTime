@@ -6,6 +6,7 @@
 @import url('./Sidebar.css');
 @import url('./Dashboard.css');
 @import url('./Forms.css');
+@import url('./CompactOverrides.css');
 
 /* Additional Global Utilities */
 

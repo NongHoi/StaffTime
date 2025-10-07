@@ -47,10 +47,6 @@ const Sidebar = ({ role, active, onNavigate, show, onHide }) => {
     return (
       <Offcanvas show={show} onHide={onHide} placement="start" className="sidebar">
         <Offcanvas.Header closeButton className="sidebar-header">
-          <Offcanvas.Title className="sidebar-brand">
-            <i className="bi bi-clock-history"></i>
-            StaffTime
-          </Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body className="sidebar-nav p-0">
           {renderNavItems(true)}
@@ -62,12 +58,6 @@ const Sidebar = ({ role, active, onNavigate, show, onHide }) => {
   // Desktop Sidebar
   return (
     <div className="sidebar">
-      <div className="sidebar-header">
-        <div className="sidebar-brand">
-          <i className="bi bi-clock-history"></i>
-          StaffTime
-        </div>
-      </div>
       <nav className="sidebar-nav">
         {renderNavItems()}
       </nav>
