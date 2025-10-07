@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, Button, Table, Form, Row, Col, Alert } from 'react-bootstrap';
+import QRCode from 'qrcode';
 
 const Attendance = ({ user }) => {
   const [history, setHistory] = useState([]);
@@ -50,6 +51,53 @@ const Attendance = ({ user }) => {
   const [inTime, setInTime] = useState('');
   const [outTime, setOutTime] = useState('');
   const [outNote, setOutNote] = useState('');
+
+  // QR code state
+  const [qrDataUrl, setQrDataUrl] = useState('');
+  const [qrExpiryIn, setQrExpiryIn] = useState(30);
+  const qrIntervalRef = useRef(null);
+  const qrCountdownRef = useRef(null);
+
+  const generateQrPayload = useCallback(() => {
+    // Create a time-based token that changes every 30s
+    // Using epoch seconds rounded to 30-second window
+    const epoch = Math.floor(Date.now() / 1000);
+    const windowSlot = Math.floor(epoch / 30); // changes every 30s
+    const payload = {
+      t: windowSlot,
+      u: user?.id || user?._id || 'me',
+      d: date
+    };
+    return JSON.stringify(payload);
+  }, [user, date]);
+
+  const refreshQr = useCallback(async () => {
+    try {
+      const text = generateQrPayload();
+      const dataUrl = await QRCode.toDataURL(text, { width: 220, margin: 1 });
+      setQrDataUrl(dataUrl);
+      setQrExpiryIn(30);
+    } catch (e) {
+      // silently ignore for now
+    }
+  }, [generateQrPayload]);
+
+  useEffect(() => {
+    // Start QR refresh cycle
+    refreshQr();
+    // refresh QR every 30s
+    qrIntervalRef.current = setInterval(() => {
+      refreshQr();
+    }, 30000);
+    // countdown timer each second
+    qrCountdownRef.current = setInterval(() => {
+      setQrExpiryIn((n) => (n > 0 ? n - 1 : 0));
+    }, 1000);
+    return () => {
+      if (qrIntervalRef.current) clearInterval(qrIntervalRef.current);
+      if (qrCountdownRef.current) clearInterval(qrCountdownRef.current);
+    };
+  }, [refreshQr]);
 
   // Chấm công show cho fulltime
   const handleCheckShow = async () => {
@@ -187,6 +235,31 @@ const Attendance = ({ user }) => {
             {message && <Alert variant="success">{message}</Alert>}
             {error && <Alert variant="danger">{error}</Alert>}
           </div>
+        </Card.Body>
+      </Card>
+      {/* QR Check-in Section */}
+      <Card className="shadow-sm border-0 rounded-4 mb-3">
+        <Card.Body>
+          <h5 className="mb-3">Chấm công bằng QR</h5>
+          <Row className="align-items-center g-3">
+            <Col md={3} sm={12} className="text-center">
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="attendance-qr" style={{ width: 220, height: 220, borderRadius: 12, border: '1px solid #eee' }} />
+              ) : (
+                <div style={{ width: 220, height: 220, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #ccc', borderRadius: 12 }}>
+                  Đang tạo QR...
+                </div>
+              )}
+            </Col>
+            <Col md={9} sm={12}>
+              <p className="mb-1">Mã QR dành cho tài khoản của bạn và ngày: <b>{new Date(date).toLocaleDateString('vi-VN')}</b></p>
+              <p className="text-muted mb-2">Mã sẽ tự động thay đổi mỗi 30 giây để bảo mật. Vui lòng đưa mã này cho thiết bị quét để chấm công.</p>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <Button variant="outline-primary" size="sm" onClick={refreshQr}>Làm mới ngay</Button>
+                <span className="text-muted">Hết hạn trong: {qrExpiryIn}s</span>
+              </div>
+            </Col>
+          </Row>
         </Card.Body>
       </Card>
       <Card className="shadow-sm border-0 rounded-4">
