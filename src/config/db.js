@@ -1,15 +1,18 @@
-// Cấu hình kết nối PostgreSQL
-const { Pool } = require('pg');
+// Cấu hình kết nối MongoDB
+const mongoose = require('mongoose');
 require('dotenv').config();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // Hoặc cấu hình chi tiết:
-  // user: process.env.DB_USER,
-  // host: process.env.DB_HOST,
-  // database: process.env.DB_NAME,
-  // password: process.env.DB_PASSWORD,
-  // port: process.env.DB_PORT,
-});
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/stafftime', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    process.exit(1);
+  }
+};
 
-module.exports = pool;
+module.exports = connectDB;

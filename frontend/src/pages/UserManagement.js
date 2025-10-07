@@ -3,17 +3,15 @@ import { Card, Table, Button, Form, Alert } from 'react-bootstrap';
 import SalaryConfigModal from '../components/SalaryConfigModal';
 import UserEditModal from '../components/UserEditModal';
 
-const roleMap = { 1: 'Admin', 2: 'Manager', 3: 'User' };
-
 const UserManagement = ({ user }) => {
   const [users, setUsers] = useState([]);
   const [showSalaryModal, setShowSalaryModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [editUser, setEditUser] = useState(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editUser, setEditUser] = useState(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -83,7 +81,8 @@ const UserManagement = ({ user }) => {
             </tr>
           </thead>
           <tbody>
-            {users.length === 0 && <tr><td colSpan={8} className="text-center">Không có dữ liệu</td></tr>}
+            {loading && <tr><td colSpan={user?.role_id === 1 ? 10 : 9} className="text-center">Đang tải...</td></tr>}
+            {!loading && users.length === 0 && <tr><td colSpan={user?.role_id === 1 ? 10 : 9} className="text-center">Không có dữ liệu</td></tr>}
             {users.map(u => (
               <tr key={u.id}>
                 <td>{u.id}</td>
@@ -116,6 +115,9 @@ const UserManagement = ({ user }) => {
                 <td>
                   <Button size="sm" variant="outline-primary" className="me-1" onClick={() => { setSelectedUser(u); setShowSalaryModal(true); }}>
                     Cấu hình lương
+                  </Button>
+                  <Button size="sm" variant="outline-secondary" className="me-1" onClick={() => { setEditUser(u); setShowEditModal(true); }}>
+                    Sửa
                   </Button>
                   {user?.role_id === 1 && (
                     <Button size="sm" variant="outline-danger" onClick={() => handleDelete(u.id)}>

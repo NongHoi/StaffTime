@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import Attendance from './Attendance';
 import Salary from './Salary';
 import UserManagement from './UserManagement';
@@ -15,6 +15,7 @@ import RequestManagement from './RequestManagement';
 import MyRequests from './MyRequests';
 import Notification from '../components/Notification';
 import MyPayrolls from './MyPayrolls';
+import Reports from './Reports';
 
 const Dashboard = ({ onLogout, user }) => {
   const [active, setActive] = useState('dashboard');
@@ -35,12 +36,143 @@ const Dashboard = ({ onLogout, user }) => {
   if (!user) return null;
   const role = user.role_id;
 
+  const renderDashboardHome = () => (
+    <div className="dashboard-home">
+      <div className="welcome-card card mb-4">
+        <div className="card-body">
+          <h2 className="mb-3">
+            <i className="bi bi-sun me-2"></i>
+            Xin chào, {user.full_name || user.username}!
+          </h2>
+          <p className="text-muted mb-0">
+            Chào mừng bạn đến với hệ thống quản lý nhân sự StaffTime. 
+            Hôm nay là {new Date().toLocaleDateString('vi-VN', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
+      </div>
+
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon primary">
+            <i className="bi bi-calendar-check"></i>
+          </div>
+          <div className="stat-content">
+            <h3>24</h3>
+            <p>Ngày công tháng này</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon success">
+            <i className="bi bi-clock"></i>
+          </div>
+          <div className="stat-content">
+            <h3>8.5</h3>
+            <p>Giờ làm hôm nay</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon warning">
+            <i className="bi bi-exclamation-triangle"></i>
+          </div>
+          <div className="stat-content">
+            <h3>2</h3>
+            <p>Yêu cầu chờ duyệt</p>
+          </div>
+        </div>
+
+        {(role === 1 || role === 2) && (
+          <div className="stat-card">
+            <div className="stat-icon primary">
+              <i className="bi bi-people"></i>
+            </div>
+            <div className="stat-content">
+              <h3>{allUsers.length}</h3>
+              <p>Tổng nhân viên</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="row">
+        <div className="col-md-8">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title">
+                <i className="bi bi-activity me-2"></i>
+                Hoạt động gần đây
+              </h5>
+            </div>
+            <div className="card-body">
+              <div className="activity-list">
+                <div className="activity-item">
+                  <div className="activity-icon success">
+                    <i className="bi bi-check-circle"></i>
+                  </div>
+                  <div className="activity-content">
+                    <p className="mb-1">Chấm công thành công</p>
+                    <small className="text-muted">2 giờ trước</small>
+                  </div>
+                </div>
+                <div className="activity-item">
+                  <div className="activity-icon warning">
+                    <i className="bi bi-clock"></i>
+                  </div>
+                  <div className="activity-content">
+                    <p className="mb-1">Yêu cầu nghỉ phép đã gửi</p>
+                    <small className="text-muted">1 ngày trước</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-4">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title">
+                <i className="bi bi-bell me-2"></i>
+                Thông báo
+              </h5>
+            </div>
+            <div className="card-body">
+              <div className="notification-list">
+                <div className="notification-item">
+                  <i className="bi bi-info-circle text-primary me-2"></i>
+                  <div>
+                    <p className="mb-1">Cập nhật lịch làm việc</p>
+                    <small className="text-muted">30 phút trước</small>
+                  </div>
+                </div>
+                <div className="notification-item">
+                  <i className="bi bi-check-circle text-success me-2"></i>
+                  <div>
+                    <p className="mb-1">Lương đã được tính</p>
+                    <small className="text-muted">2 giờ trước</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <Notification />
-      <div style={{ background: '#f6f8fa', minHeight: '100vh' }}>
+      <div className="dashboard-layout">
         <Header onLogout={onLogout} onMenuClick={() => setShowSidebar(true)} />
-        {/* Sidebar mobile */}
+        
+        {/* Mobile Sidebar */}
         <Sidebar
           role={role}
           active={active}
@@ -48,20 +180,17 @@ const Dashboard = ({ onLogout, user }) => {
           show={showSidebar}
           onHide={() => setShowSidebar(false)}
         />
-        <Container fluid>
-          <Row>
-            <Col md={2} className="d-none d-md-block">
-              <Sidebar role={role} active={active} onNavigate={setActive} />
-            </Col>
-            <Col md={10} className="pt-3">
-              {active === 'dashboard' && (
-                <Card className="shadow-sm border-0 rounded-4 mb-3">
-                  <Card.Body>
-                    <h4>Chào mừng, {user.fullname || user.username}!</h4>
-                    <p className="text-muted mb-0">Hệ thống quản lý chấm công & tính lương sự kiện StaffTime.</p>
-                  </Card.Body>
-                </Card>
-              )}
+
+        <div className="dashboard-container">
+          {/* Desktop Sidebar */}
+          <div className="d-none d-lg-block">
+            <Sidebar role={role} active={active} onNavigate={setActive} />
+          </div>
+
+          {/* Main Content */}
+          <div className="dashboard-content">
+            <Container fluid className="p-4">
+              {active === 'dashboard' && renderDashboardHome()}
               {active === 'attendance' && <Attendance user={user} />}
               {active === 'salary' && <Salary user={user} />}
               {active === 'users' && <UserManagement user={user} />}
@@ -74,10 +203,10 @@ const Dashboard = ({ onLogout, user }) => {
               {active === 'requestManagement' && (role === 1 || role === 2) && <RequestManagement user={user} />}
               {active === 'myRequests' && <MyRequests user={user} />}
               {active === 'myPayrolls' && <MyPayrolls user={user} />}
-              {/* Các trang chức năng sẽ bổ sung tại đây */}
-            </Col>
-          </Row>
-        </Container>
+              {active === 'reports' && (role === 1 || role === 2) && <Reports />}
+            </Container>
+          </div>
+        </div>
       </div>
     </>
   );

@@ -12,14 +12,15 @@ function App() {
 
   // Check login status on mount
   useEffect(() => {
-    fetch('/api/auth/check-login')
+    fetch('/api/auth/me', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
-        if (data.loggedIn) {
+        if (data && data.authenticated) {
           setLoggedIn(true);
           setUser(data.user);
         }
-      });
+      })
+      .catch(() => {});
   }, []);
 
 
@@ -29,7 +30,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    fetch('/api/auth/logout', { method: 'POST' }).finally(() => {
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).finally(() => {
       setLoggedIn(false);
       setUser(null);
     });

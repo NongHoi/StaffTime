@@ -1,30 +1,57 @@
 import React from 'react';
-import { Navbar, Container, Button } from 'react-bootstrap';
+import { useAuth } from '../context/AuthContext';
 
-const Header = ({ onLogout, onMenuClick }) => (
-  <Navbar bg="white" className="shadow-sm mb-3" expand="lg" style={{ minHeight: 60 }}>
-    <Container fluid>
-      <div className="d-flex align-items-center">
-        {/* Nút menu cho mobile */}
-        {onMenuClick && (
-          <Button
-            variant="outline-primary"
-            className="d-md-none me-2"
-            style={{ border: 'none', fontSize: 22, padding: '2px 10px' }}
+const Header = ({ onLogout, onMenuClick }) => {
+  const { user } = useAuth();
+
+  const getRoleText = (roleId) => {
+    switch (roleId) {
+      case 1: return 'Quản trị viên';
+      case 2: return 'Quản lý';
+      case 3: return 'Nhân viên';
+      default: return 'Người dùng';
+    }
+  };
+
+  return (
+    <header className="header">
+      <div className="header-content">
+        <div className="header-left">
+          <button 
+            className="menu-toggle d-lg-none"
             onClick={onMenuClick}
+            type="button"
           >
-            <span className="navbar-toggler-icon" />
-          </Button>
-        )}
-        <Navbar.Brand style={{ fontWeight: 700, color: '#050506ff', fontSize: 24 }}>
-          <span style={{ marginRight: 8, fontSize: 28 }}></span> StaffTime
-        </Navbar.Brand>
+            <i className="bi bi-list"></i>
+          </button>
+          
+          <div className="header-brand">
+            <i className="bi bi-clock-history me-2"></i>
+            StaffTime
+          </div>
+        </div>
+
+        <div className="header-right">
+          {user && (
+            <div className="user-info">
+              <i className="bi bi-person-circle"></i>
+              <span className="username">{user.full_name || user.username}</span>
+              <span className="d-none d-md-inline">({getRoleText(user.role_id)})</span>
+            </div>
+          )}
+          
+          <button 
+            className="logout-btn"
+            onClick={onLogout}
+            type="button"
+          >
+            <i className="bi bi-box-arrow-right me-2"></i>
+            Đăng xuất
+          </button>
+        </div>
       </div>
-      <Button variant="outline-secondary" onClick={onLogout} size="sm">
-        Đăng xuất
-      </Button>
-    </Container>
-  </Navbar>
-);
+    </header>
+  );
+};
 
 export default Header;

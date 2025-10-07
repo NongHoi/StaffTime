@@ -1,6 +1,6 @@
 
 const bcrypt = require('bcrypt');
-const userModel = require('../users/user.model');
+const User = require('../../models/User');
 
 const register = async (req, res) => {
   try {
@@ -8,22 +8,23 @@ const register = async (req, res) => {
     if (!username || !password || !fullname) {
       return res.status(400).json({ message: 'Thiếu thông tin bắt buộc.' });
     }
-    const existingUser = await userModel.findUserByUsername(username);
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(409).json({ message: 'Username đã tồn tại.' });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    // Mặc định role_id = 3 (user), type = 'parttime'
-    const user = await userModel.createUser({
+    
+    // Tạo user mới (password sẽ được hash trong pre-save hook)
+    const user = new User({
       username,
-      password: hashedPassword,
-      fullname,
+      password,
+      full_name: fullname,
       phone,
       email,
-      role_id: 3,
-      type: 'parttime',
+      role_id: 3 // Mặc định là employee
     });
-    res.status(201).json({ message: 'Đăng ký thành công', user: { id: user.id, username: user.username } });
+    
+    await user.save();
+    res.status(201).json({ message: 'Đăng ký thành công', user: { id: user._id, username: user.username } });
   } catch (err) {
     console.error('Register error:', err);
     res.status(500).json({ message: 'Lỗi server', error: err.message });
@@ -33,21 +34,20 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    const user = await userModel.findUserByUsername(username);
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({ message: 'Sai username hoặc password.' });
     }
-    const match = await bcrypt.compare(password, user.password);
+    const match = await user.comparePassword(password);
     if (!match) {
       return res.status(401).json({ message: 'Sai username hoặc password.' });
     }
     // Lưu thông tin user vào session
     req.session.user = {
-      id: user.id,
+      id: user._id,
       username: user.username,
       role_id: user.role_id,
-      type: user.type,
-      fullname: user.fullname
+      full_name: user.full_name
     };
     res.json({ message: 'Đăng nhập thành công', user: req.session.user });
   } catch (err) {
