@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Button, Table, Form, Row, Col, Alert } from 'react-bootstrap';
 
 const Attendance = ({ user }) => {
@@ -23,7 +23,7 @@ const Attendance = ({ user }) => {
   };
 
   // Lấy dữ liệu chấm công theo bộ lọc
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     let url = '';
     if (user?.type === 'fulltime') {
       // API riêng cho fulltime
@@ -39,25 +39,12 @@ const Attendance = ({ user }) => {
     const res = await fetch(url);
     if (res.ok) setHistory(await res.json());
     else setHistory([]);
-  };
+  }, [date, filterType, month, year, week, user]);
 
   useEffect(() => { fetchAttendanceDates(); }, []);
-  useEffect(() => { fetchHistory(); }, [date, filterType, month, year, week]);
+  useEffect(() => { fetchHistory(); }, [date, filterType, month, year, week, fetchHistory]);
 
-  // Lấy danh sách ngày đã chấm công trong tháng khi chọn bộ lọc tháng
-  const [monthDates, setMonthDates] = useState([]);
-  useEffect(() => {
-    if (filterType === 'month' && year && month) {
-      // Lọc attendanceDates theo tháng/năm
-      const filtered = attendanceDates.filter(d => {
-        const dt = new Date(d);
-        return dt.getFullYear().toString() === year && (dt.getMonth() + 1).toString().padStart(2, '0') === month;
-      });
-      setMonthDates(filtered);
-    } else {
-      setMonthDates([]);
-    }
-  }, [filterType, year, month, attendanceDates]);
+  // Removed unused monthDates state
 
   // Khai báo các biến và hàm chỉ dùng cho parttime
   const [inTime, setInTime] = useState('');

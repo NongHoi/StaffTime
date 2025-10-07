@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: '/api', // use relative path so CRA proxy can forward requests to backend during development
+    baseURL: '/api', // use relative path so CRA proxy can forward requests to backend
     withCredentials: true, // include cookies for session-based auth
 });
 

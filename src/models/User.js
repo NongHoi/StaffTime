@@ -38,6 +38,37 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  salary_config: {
+    type: {
+      type: String,
+      enum: ['parttime', 'fulltime'],
+      default: 'parttime'
+    },
+    day_shift_rate: {
+      type: Number,
+      default: 0
+    },
+    night_shift_rate: {
+      type: Number,
+      default: 0
+    },
+    base_salary: {
+      type: Number,
+      default: 0
+    },
+    allowance: {
+      type: Number,
+      default: 0
+    },
+    bonus: {
+      type: Number,
+      default: 0
+    },
+    show_salary: {
+      type: Number,
+      default: 0
+    }
+  },
   created_at: {
     type: Date,
     default: Date.now

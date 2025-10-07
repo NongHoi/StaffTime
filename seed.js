@@ -1,16 +1,14 @@
 const mongoose = require('mongoose');
 const User = require('./src/models/User');
 const WorkSchedule = require('./src/models/WorkSchedule');
+const Attendance = require('./src/models/Attendance');
 const Payroll = require('./src/models/Payroll');
 const Request = require('./src/models/Request');
 require('dotenv').config();
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/stafftime_db', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/stafftime_db');
     console.log('MongoDB Connected');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
@@ -23,6 +21,7 @@ const seedData = async () => {
     // Xóa dữ liệu cũ
     await User.deleteMany({});
     await WorkSchedule.deleteMany({});
+    await Attendance.deleteMany({});
     await Payroll.deleteMany({});
     await Request.deleteMany({});
 
@@ -93,6 +92,40 @@ const seedData = async () => {
 
     await WorkSchedule.create(workSchedules);
     console.log('Đã tạo work schedules mẫu');
+
+    // Tạo attendance records mẫu
+    const attendanceRecords = [];
+    const currentDate = new Date();
+    for (let i = 0; i < 7; i++) {
+      const attendanceDate = new Date(currentDate);
+      attendanceDate.setDate(currentDate.getDate() - i);
+      
+      users.slice(2).forEach(user => { // Chỉ tạo cho employees
+        if (i < 5) { // Only create for weekdays
+          const checkInTime = new Date(attendanceDate);
+          checkInTime.setHours(8, Math.floor(Math.random() * 30), 0, 0); // 8:00-8:30 AM
+          
+          const checkOutTime = new Date(attendanceDate);
+          checkOutTime.setHours(17, Math.floor(Math.random() * 30), 0, 0); // 5:00-5:30 PM
+          
+          const hoursWorked = (checkOutTime - checkInTime) / (1000 * 60 * 60);
+          
+          attendanceRecords.push({
+            user_id: user._id,
+            date: attendanceDate,
+            check_in: checkInTime,
+            check_out: checkOutTime,
+            total_hours: Math.round(hoursWorked * 10) / 10,
+            overtime_hours: hoursWorked > 8 ? Math.round((hoursWorked - 8) * 10) / 10 : 0,
+            shift_type: 'day',
+            status: 'checked_out'
+          });
+        }
+      });
+    }
+
+    await Attendance.create(attendanceRecords);
+    console.log('Đã tạo attendance records mẫu');
 
     // Tạo payrolls mẫu
     const payrolls = [];

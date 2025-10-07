@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const cors = require('cors');
 const app = express();
 const connectDB = require('./config/db');
 const http = require('http');
@@ -8,6 +9,12 @@ const { Server } = require("socket.io");
 
 // Connect to MongoDB
 connectDB();
+
+// CORS middleware
+app.use(cors({
+  origin: 'http://localhost:3001',
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(session({
@@ -22,7 +29,8 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3001", // Địa chỉ của React app
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
@@ -51,28 +59,26 @@ io.on('connection', (socket) => {
 const authRoutes = require('./api/auth/auth.routes');
 const userRoutes = require('./api/users/users.routes')(io, connectedUsers);
 const reportRoutes = require('./api/reports/reports.routes')();
+const attendanceRoutes = require('./api/attendance/attendance.mongo.routes')(io, connectedUsers);
+const profileRoutes = require('./api/profile/profile.mongo.routes')(io, connectedUsers);
 
-// TODO: Update these routes to use MongoDB models
-// const attendanceRoutes = require('./api/attendance/attendance.routes');
-// const configRoutes = require('./api/config/config.routes');
-// const salaryRoutes = require('./api/salary/salary.routes');
-// const profileRoutes = require('./api/profile/profile.routes');
-// const workScheduleRoutes = require('./api/work-schedule/work-schedule.routes')(io, connectedUsers);
-// const payrollRoutes = require('./api/payroll/payroll.routes')(io, connectedUsers);
-// const requestRoutes = require('./api/requests/requests.routes')(io, connectedUsers);
+// MongoDB-based routes
+const salaryRoutes = require('./api/salary/salary.mongo.routes')(io, connectedUsers);
+const payrollRoutes = require('./api/payroll/payroll.mongo.routes')(io, connectedUsers);
+const workScheduleRoutes = require('./api/work-schedule/work-schedule.mongo.routes')(io, connectedUsers);
+const requestRoutes = require('./api/requests/requests.mongo.routes')(io, connectedUsers);
+const configRoutes = require('./api/config/config.mongo.routes')(io, connectedUsers);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes);
-
-// TODO: Re-enable these routes after updating to MongoDB
-// app.use('/api/attendance', attendanceRoutes);
-// app.use('/api/config', configRoutes);
-// app.use('/api/salary', salaryRoutes);
-// app.use('/api/profile', profileRoutes);
-// app.use('/api/work-schedule', workScheduleRoutes);
-// app.use('/api/payroll', payrollRoutes);
-// app.use('/api/requests', requestRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/salary', salaryRoutes);
+app.use('/api/payroll', payrollRoutes);
+app.use('/api/work-schedule', workScheduleRoutes);
+app.use('/api/requests', requestRoutes);
+app.use('/api/config', configRoutes);
 
 // Thêm một route để test gửi thông báo
 app.post('/api/notify', (req, res) => {
@@ -88,7 +94,7 @@ app.post('/api/notify', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📊 MongoDB connected successfully`);
-  console.log(`🎯 StaffTime API ready!`);
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`MongoDB connected successfully`);
+  console.log(`StaffTime API ready!`);
 });

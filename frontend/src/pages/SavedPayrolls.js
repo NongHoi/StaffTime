@@ -1,24 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Alert, Form, Row, Col, Button } from 'react-bootstrap';
+import { Card, Table, Alert, Form, Row, Col } from 'react-bootstrap';
 
 function SavedPayrolls({ users }) {
   const [selectedUser, setSelectedUser] = useState('');
   const [payrolls, setPayrolls] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [userMap, setUserMap] = useState({});
 
-  useEffect(() => {
-    // Tạo map id -> user info để hiển thị tên
-    if (users && users.length) {
-      const map = {};
-      users.forEach(u => { map[u.id] = u; });
-      setUserMap(map);
-    }
-  }, [users]);
+  // Create user mapping for display
+  const userMap = {};
+  if (users && users.length) {
+    users.forEach(u => { userMap[u.id] = u; });
+  }
 
   const fetchPayrolls = (user_id) => {
     setError('');
+    setLoading(true);
     setPayrolls([]);
     if (!user_id) return;
     setLoading(true);

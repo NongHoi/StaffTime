@@ -42,6 +42,7 @@ module.exports = (io, connectedUsers) => {
     router.delete('/:userId', controller.removeUser);
 
     router.post('/set-salary', controller.setSalary);
+    router.get('/:userId/salary', controller.getUserSalary);
 
     return router;
 };

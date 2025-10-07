@@ -43,21 +43,47 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Sai username hoặc password.' });
     }
     // Lưu thông tin user vào session
-    req.session.user = {
+    const sessionUser = {
       id: user._id,
       username: user.username,
       role_id: user.role_id,
-      full_name: user.full_name
+      fullname: user.full_name, // Convert full_name to fullname for frontend compatibility
+      type: user.salary_config?.type || 'parttime', // Add type for frontend
+      email: user.email,
+      phone: user.phone
     };
-    res.json({ message: 'Đăng nhập thành công', user: req.session.user });
+    req.session.user = sessionUser;
+    res.json({ message: 'Đăng nhập thành công', user: sessionUser });
   } catch (err) {
     res.status(500).json({ message: 'Lỗi server', error: err.message });
   }
 };
 
-const me = (req, res) => {
+const me = async (req, res) => {
   if (req.session.user) {
-    res.json({ authenticated: true, user: req.session.user });
+    try {
+      // Refresh user data from database to get latest info
+      const user = await User.findById(req.session.user.id);
+      if (!user) {
+        return res.status(401).json({ authenticated: false, message: 'User không tồn tại' });
+      }
+      
+      const updatedUser = {
+        id: user._id,
+        username: user.username,
+        role_id: user.role_id,
+        fullname: user.full_name,
+        type: user.salary_config?.type || 'parttime',
+        email: user.email,
+        phone: user.phone
+      };
+      
+      // Update session with latest data
+      req.session.user = updatedUser;
+      res.json({ authenticated: true, user: updatedUser });
+    } catch (err) {
+      res.status(500).json({ authenticated: false, message: 'Lỗi server' });
+    }
   } else {
     res.status(401).json({ authenticated: false, message: 'Chưa đăng nhập' });
   }

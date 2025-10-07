@@ -15,15 +15,21 @@ const SalaryConfigModal = ({ show, onHide, user, onSave }) => {
 
   React.useEffect(() => {
     if (user) {
-      // Có thể fetch lương hiện tại nếu muốn
-      setForm({
-        day_shift_rate: '',
-        night_shift_rate: '',
-        base_salary: '',
-        show_salary: '',
-        allowance: '',
-        bonus: ''
-      });
+      // Fetch current salary configuration
+      fetch(`/api/users/${user.id}/salary`)
+        .then(res => res.ok ? res.json() : {})
+        .then(data => {
+          const config = data.salary_config || {};
+          setForm({
+            day_shift_rate: config.day_shift_rate || '',
+            night_shift_rate: config.night_shift_rate || '',
+            base_salary: config.base_salary || '',
+            show_salary: config.show_salary || '',
+            allowance: config.allowance || '',
+            bonus: config.bonus || ''
+          });
+        })
+        .catch(err => console.error('Lỗi tải cấu hình lương:', err));
       setMessage(''); setError('');
     }
   }, [user]);

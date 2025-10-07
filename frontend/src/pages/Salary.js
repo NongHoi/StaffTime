@@ -69,10 +69,7 @@ const Salary = ({ user }) => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [result, setResult] = useState(null);
   const [attendance, setAttendance] = useState([]);
-  const [nightStart, setNightStart] = useState('');
-  const [nightEnd, setNightEnd] = useState('');
-  const [nightMsg, setNightMsg] = useState('');
-  const [nightErr, setNightErr] = useState('');
+  // Removed unused night shift configuration variables
   const [allowance, setAllowance] = useState('');
   const [bonus, setBonus] = useState('');
   const [error, setError] = useState('');
@@ -110,7 +107,7 @@ const Salary = ({ user }) => {
       else setAttendance([]);
     };
     fetchAttendance();
-  }, [userId, users, year, month]);
+  }, [userId, users, year, month, type]);
 
   // Khi chọn userId, cập nhật selectedUser
   useEffect(() => {
@@ -131,7 +128,7 @@ const Salary = ({ user }) => {
       const res = await fetch(`/api/salary/${type}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, month, year, night_shift_start: nightStart, night_shift_end: nightEnd, allowance: allowanceNum, bonus: bonusNum })
+        body: JSON.stringify({ user_id: userId, month, year, allowance: allowanceNum, bonus: bonusNum })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Tính lương thất bại');
@@ -143,23 +140,7 @@ const Salary = ({ user }) => {
     }
   };
 
-  // Lưu cố định giờ đêm
-  const handleSaveNight = async (e) => {
-    e.preventDefault();
-    setNightMsg(''); setNightErr('');
-    try {
-      const res = await fetch('/api/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ night_shift_start: nightStart, night_shift_end: nightEnd })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Lưu thất bại');
-      setNightMsg('Lưu giờ đêm thành công!');
-    } catch (err) {
-      setNightErr(err.message);
-    }
-  };
+  // Removed unused handleSaveNight function
 
   // Lưu bảng lương đã tính
   const handleSavePayroll = async () => {
