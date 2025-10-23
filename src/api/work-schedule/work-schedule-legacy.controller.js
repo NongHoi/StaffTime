@@ -201,8 +201,23 @@ module.exports = (io, connectedUsers) => {
         }
     };
 
+    // Get all work schedules
+    const getAllSchedules = async (req, res) => {
+        try {
+            const schedules = await LegacyWorkSchedule.find({})
+                .populate('created_by', 'full_name username')
+                .sort({ date: -1 });
+
+            res.json(schedules);
+        } catch (err) {
+            console.error('getAllSchedules error:', err);
+            res.status(500).json({ message: err.message || 'Lỗi server' });
+        }
+    };
+
     return {
         getMonthSchedules,
+        getAllSchedules,
         createSchedule,
         updateSchedule,
         deleteSchedule,

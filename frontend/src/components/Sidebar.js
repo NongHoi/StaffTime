@@ -31,6 +31,9 @@ const Sidebar = ({ role, active, onNavigate, show, onHide }) => {
         { key: 'savedPayrolls', label: 'Bảng lương', icon: 'bi-file-earmark-text-fill' },
         { key: 'reports', label: 'Báo cáo', icon: 'bi-graph-up-arrow' },
         { key: 'announcement-management', label: 'Quản lý Thông báo', icon: 'bi-megaphone', roles: [1] },
+        { key: 'materialManagement', label: 'Quản lý Vật tư', icon: 'bi-box-seam' },
+        { key: 'materialIssuance', label: 'Xuất Vật tư', icon: 'bi-box-arrow-up' },
+        { key: 'materialReturn', label: 'Nhập Kho', icon: 'bi-box-arrow-in-down' },
       ]
     },
     {

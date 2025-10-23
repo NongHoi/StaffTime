@@ -21,6 +21,9 @@ import MyPayrolls from './MyPayrolls';
 import Reports from './Reports';
 import AnnouncementManagement from './AnnouncementManagement';
 import NotificationHistory from './NotificationHistory';
+import MaterialManagement from './MaterialManagement';
+import MaterialIssuance from './MaterialIssuance';
+import MaterialReturn from './MaterialReturn';
 
 const Dashboard = ({ onLogout, user }) => {
   const [active, setActive] = useState('dashboard');
@@ -454,6 +457,9 @@ const Dashboard = ({ onLogout, user }) => {
               {active === 'reports' && (role === 1 || role === 2) && <Reports user={user} />}
               {active === 'announcement-management' && <AnnouncementManagement />}
               {active === 'notification-history' && <NotificationHistory />}
+              {active === 'materialManagement' && (role === 1 || role === 2) && <MaterialManagement />}
+              {active === 'materialIssuance' && (role === 1 || role === 2) && <MaterialIssuance />}
+              {active === 'materialReturn' && (role === 1 || role === 2) && <MaterialReturn />}
             </Container>
           </div>
         </div>
