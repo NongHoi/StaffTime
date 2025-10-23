@@ -92,6 +92,8 @@ const workScheduleRoutes = require('./api/work-schedule/work-schedule.mongo.rout
 const requestRoutes = require('./api/requests/requests.mongo.routes')(io, connectedUsers);
 const configRoutes = require('./api/config/config.mongo.routes')(io, connectedUsers);
 const dashboardRoutes = require('./routes/dashboard.mongo.routes');
+const announcementRoutes = require('./api/announcements/announcement.mongo.routes')(io, connectedUsers);
+const initializeScheduler = require('./services/scheduler');
 
 // Make connectedUsers available to all routes
 app.locals.connectedUsers = connectedUsers;
@@ -106,7 +108,11 @@ app.use('/api/payroll', payrollRoutes);
 app.use('/api/work-schedule', workScheduleRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/announcements', announcementRoutes);
 app.use('/', dashboardRoutes);
+
+// Initialize the scheduler
+initializeScheduler(io, connectedUsers);
 
 // Thêm một route để test gửi thông báo
 app.post('/api/notify', (req, res) => {

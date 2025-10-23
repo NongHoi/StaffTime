@@ -5,7 +5,18 @@ import { Toast, ToastContainer } from 'react-bootstrap';
 const SocketContext = createContext();
 
 export const useSocket = () => {
-    return useContext(SocketContext);
+    const context = useContext(SocketContext);
+    if (!context) return null;
+    return context.socket || null;
+};
+
+export const useNotifications = () => {
+    const context = useContext(SocketContext);
+    if (!context) return { notifications: [], removeNotification: () => {} };
+    return {
+        notifications: context.notifications || [],
+        removeNotification: context.removeNotification || (() => {})
+    };
 };
 
 export const SocketProvider = ({ children, user }) => {
@@ -17,15 +28,17 @@ export const SocketProvider = ({ children, user }) => {
     }, []);
 
     const addNotification = useCallback((notification) => {
-        setNotifications(prev => [notification, ...prev].slice(0, 10));
+        setNotifications(prev => [notification, ...prev].slice(0, 50));
+        // auto remove after some time
         setTimeout(() => {
             removeNotification(notification.id);
-        }, 5000);
+        }, 10000); // Increased to 10 seconds
     }, [removeNotification]);
 
     useEffect(() => {
         if (user && user.id) {
-            const newSocket = io('http://localhost:3000', {
+            const SOCKET_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+            const newSocket = io(SOCKET_URL, {
                 query: { userId: user.id },
                 reconnection: true,
                 reconnectionDelay: 1000,
@@ -40,10 +53,10 @@ export const SocketProvider = ({ children, user }) => {
                 console.log('Socket disconnected');
             });
 
+            // Generic notification event
             newSocket.on('notification', (data) => {
-                console.log('Notification received:', data);
                 addNotification({
-                    id: Date.now(),
+                    id: Date.now() + Math.floor(Math.random() * 1000),
                     title: data.title || 'Thông báo',
                     message: data.message,
                     type: data.type || 'info',
@@ -51,36 +64,30 @@ export const SocketProvider = ({ children, user }) => {
                 });
             });
 
-            newSocket.on('dashboard_update', (data) => {
-                console.log('Dashboard update:', data);
-            });
-
+            // Other specific events
             newSocket.on('new_attendance', (data) => {
-                console.log('New attendance:', data);
                 addNotification({
-                    id: Date.now(),
+                    id: Date.now() + Math.floor(Math.random() * 1000),
                     title: 'Chấm công mới',
-                    message: `${data.user_name || 'Nhân viên'} vừa chấm công`,
+                    message: data.userName ? `${data.userName} vừa chấm công` : 'Có chấm công mới',
                     type: 'success',
                     time: new Date()
                 });
             });
 
             newSocket.on('new_request', (data) => {
-                console.log('New request:', data);
                 addNotification({
-                    id: Date.now(),
+                    id: Date.now() + Math.floor(Math.random() * 1000),
                     title: 'Yêu cầu mới',
-                    message: `${data.user_name || 'Nhân viên'} gửi yêu cầu: ${data.title || ''}`,
+                    message: data.userName ? `${data.userName} gửi yêu cầu: ${data.title || ''}` : 'Có yêu cầu mới',
                     type: 'warning',
                     time: new Date()
                 });
             });
 
             newSocket.on('request_approved', (data) => {
-                console.log('Request approved:', data);
                 addNotification({
-                    id: Date.now(),
+                    id: Date.now() + Math.floor(Math.random() * 1000),
                     title: 'Yêu cầu được duyệt',
                     message: `Yêu cầu "${data.title}" của bạn đã được chấp nhận`,
                     type: 'success',
@@ -89,9 +96,8 @@ export const SocketProvider = ({ children, user }) => {
             });
 
             newSocket.on('request_rejected', (data) => {
-                console.log('Request rejected:', data);
                 addNotification({
-                    id: Date.now(),
+                    id: Date.now() + Math.floor(Math.random() * 1000),
                     title: 'Yêu cầu bị từ chối',
                     message: `Yêu cầu "${data.title}" của bạn đã bị từ chối`,
                     type: 'danger',
@@ -100,9 +106,8 @@ export const SocketProvider = ({ children, user }) => {
             });
 
             newSocket.on('new_work_schedule', (data) => {
-                console.log('New work schedule:', data);
                 addNotification({
-                    id: Date.now(),
+                    id: Date.now() + Math.floor(Math.random() * 1000),
                     title: 'Lịch làm mới',
                     message: `Lịch làm mới: ${data.job_name || 'Công việc'}`,
                     type: 'info',
@@ -120,7 +125,7 @@ export const SocketProvider = ({ children, user }) => {
     }, [user, addNotification]);
 
     return (
-        <SocketContext.Provider value={socket}>
+        <SocketContext.Provider value={{ socket, notifications, addNotification, removeNotification }}>
             {children}
             <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
                 {notifications.map(notif => (

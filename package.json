@@ -16,6 +16,7 @@
     "express-session": "^1.18.2",
     "mongodb": "^6.20.0",
     "mongoose": "^8.19.0",
+    "node-cron": "^4.2.1",
     "node-fetch": "^2.7.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",

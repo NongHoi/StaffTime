@@ -14,6 +14,7 @@ const Sidebar = ({ role, active, onNavigate, show, onHide }) => {
       title: 'CÁ NHÂN',
       items: [
         { key: 'profile', label: 'Hồ sơ của tôi', icon: 'bi-person-circle' },
+        { key: 'notification-history', label: 'Lịch sử thông báo', icon: 'bi-bell' },
         { key: 'attendance', label: 'Chấm công', icon: 'bi-calendar-check-fill' },
         { key: 'myRequests', label: 'Yêu cầu của tôi', icon: 'bi-journal-text' },
         { key: 'myPayrolls', label: 'Lương của tôi', icon: 'bi-wallet2' },
@@ -29,6 +30,7 @@ const Sidebar = ({ role, active, onNavigate, show, onHide }) => {
         { key: 'salary', label: 'Tính lương', icon: 'bi-calculator-fill' },
         { key: 'savedPayrolls', label: 'Bảng lương', icon: 'bi-file-earmark-text-fill' },
         { key: 'reports', label: 'Báo cáo', icon: 'bi-graph-up-arrow' },
+        { key: 'announcement-management', label: 'Quản lý Thông báo', icon: 'bi-megaphone', roles: [1] },
       ]
     },
     {

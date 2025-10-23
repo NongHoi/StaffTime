@@ -19,6 +19,8 @@ import MyRequests from './MyRequests';
 import Notification from '../components/Notification';
 import MyPayrolls from './MyPayrolls';
 import Reports from './Reports';
+import AnnouncementManagement from './AnnouncementManagement';
+import NotificationHistory from './NotificationHistory';
 
 const Dashboard = ({ onLogout, user }) => {
   const [active, setActive] = useState('dashboard');
@@ -416,7 +418,7 @@ const Dashboard = ({ onLogout, user }) => {
     <>
       <Notification />
       <div className="dashboard-layout">
-        <Header onLogout={onLogout} onMenuClick={() => setShowSidebar(true)} />
+        <Header onLogout={onLogout} onMenuClick={() => setShowSidebar(true)} onNavigate={setActive} />
         
         {/* Mobile Sidebar */}
         <Sidebar
@@ -449,7 +451,9 @@ const Dashboard = ({ onLogout, user }) => {
               {active === 'requestManagement' && (role === 1 || role === 2) && <RequestManagement user={user} />}
               {active === 'myRequests' && <MyRequests user={user} />}
               {active === 'myPayrolls' && <MyPayrolls user={user} />}
-              {active === 'reports' && (role === 1 || role === 2) && <Reports />}
+              {active === 'reports' && (role === 1 || role === 2) && <Reports user={user} />}
+              {active === 'announcement-management' && <AnnouncementManagement />}
+              {active === 'notification-history' && <NotificationHistory />}
             </Container>
           </div>
         </div>
