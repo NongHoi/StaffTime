@@ -24,6 +24,7 @@ module.exports = (io, connectedUsers) => {
     router.use(requireAuth);
 
     // Routes for viewing schedules (all users)
+    router.get('/', workScheduleController.getAllSchedules);
     router.get('/month', workScheduleController.getMonthSchedules);
     router.get('/my-registrations', workScheduleController.getMyRegistrations);
     router.get('/:id/registrations', workScheduleController.getRegistrations);

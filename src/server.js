@@ -93,6 +93,10 @@ const requestRoutes = require('./api/requests/requests.mongo.routes')(io, connec
 const configRoutes = require('./api/config/config.mongo.routes')(io, connectedUsers);
 const dashboardRoutes = require('./routes/dashboard.mongo.routes');
 const announcementRoutes = require('./api/announcements/announcement.mongo.routes')(io, connectedUsers);
+const materialRoutes = require('./api/materials/material.routes');
+const materialIssuanceRoutes = require('./api/material-issuances/materialIssuance.routes');
+const materialIssuanceFormRoutes = require('./api/material-issuances/materialIssuanceForm.routes');
+const materialReturnRoutes = require('./api/material-return/material-return.mongo.routes');
 const initializeScheduler = require('./services/scheduler');
 
 // Make connectedUsers available to all routes
@@ -109,6 +113,10 @@ app.use('/api/work-schedule', workScheduleRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/materials', materialRoutes);
+app.use('/api/material-issuances', materialIssuanceRoutes);
+app.use('/api/material-issuance-forms', materialIssuanceFormRoutes);
+app.use('/api/material-return', materialReturnRoutes);
 app.use('/', dashboardRoutes);
 
 // Initialize the scheduler

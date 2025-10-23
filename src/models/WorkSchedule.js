@@ -36,6 +36,11 @@ const workScheduleSchema = new mongoose.Schema({
     enum: ['scheduled', 'completed', 'absent'],
     default: 'scheduled'
   },
+  event_name: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   created_at: {
     type: Date,
     default: Date.now
