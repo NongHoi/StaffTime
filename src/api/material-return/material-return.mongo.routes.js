@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const materialReturnController = require('./material-return.mongo.controller');
+const materialReturnController = require('./material-return.mongo');
 const requireLogin = require('../../middlewares/requireLogin');
 
 router.use(requireLogin);

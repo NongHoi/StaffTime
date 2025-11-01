@@ -4,7 +4,7 @@ const requireLogin = require('../../middlewares/requireLogin');
 const requireRole = require('../../middlewares/requireRole');
 
 module.exports = (io, connectedUsers) => {
-    const announcementController = require('./announcement.mongo.controller')(io, connectedUsers);
+    const announcementController = require('./announcement.mongo')(io, connectedUsers);
 
     // Admin creates an announcement
     router.post('/', requireLogin, requireRole([1]), announcementController.createAnnouncement);
