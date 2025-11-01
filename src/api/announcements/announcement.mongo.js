@@ -1,5 +1,5 @@
-const Announcement = require('../../models/Announcement');
-const User = require('../../models/User');
+const Announcement = require('../../schema/Announcement');
+const User = require('../../schema/User');
 
 module.exports = (io, connectedUsers) => {
 

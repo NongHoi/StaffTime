@@ -3,7 +3,7 @@ const router = express.Router();
 
 module.exports = (io, connectedUsers) => {
     // Use the legacy controller that has full CRUD functionality
-    const workScheduleController = require('./work-schedule-legacy.controller')(io, connectedUsers);
+    const workScheduleController = require('./work-schedule-legacy')(io, connectedUsers);
 
     // Authentication middleware
     const requireAuth = (req, res, next) => {

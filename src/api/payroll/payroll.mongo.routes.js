@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 module.exports = (io, connectedUsers) => {
-    const payrollController = require('./payroll.mongo.controller')(io, connectedUsers);
+    const payrollController = require('./payroll.mongo')(io, connectedUsers);
 
     // Authentication middleware
     const requireAuth = (req, res, next) => {

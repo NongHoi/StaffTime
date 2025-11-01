@@ -1,6 +1,6 @@
-const User = require('../../models/User');
-const Attendance = require('../../models/Attendance');
-const WorkSchedule = require('../../models/WorkSchedule');
+const User = require('../../schema/User');
+const Attendance = require('../../schema/Attendance');
+const WorkSchedule = require('../../schema/WorkSchedule');
 
 module.exports = (io, connectedUsers) => {
     const calculatePartTimeSalary = async (req, res) => {

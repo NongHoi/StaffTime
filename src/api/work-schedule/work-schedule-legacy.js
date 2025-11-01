@@ -1,6 +1,6 @@
 // Legacy work schedule controller for compatibility with frontend
-const LegacyWorkSchedule = require('../../models/LegacyWorkSchedule');
-const User = require('../../models/User');
+const LegacyWorkSchedule = require('../../schema/LegacyWorkSchedule');
+const User = require('../../schema/User');
 
 module.exports = (io, connectedUsers) => {
     const sendNotification = (userId, message) => {

@@ -1,5 +1,5 @@
-const Request = require('../../models/Request');
-const User = require('../../models/User');
+const Request = require('../../schema/Request');
+const User = require('../../schema/User');
 
 module.exports = (io, connectedUsers) => {
     const sendNotification = (userId, message) => {

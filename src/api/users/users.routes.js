@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('./users.controller');
+const userController = require('./users');
 const requireLogin = require('../../middlewares/requireLogin');
 const requireRole = require('../../middlewares/requireRole');
-const WorkSchedule = require('../../models/WorkSchedule');
+const WorkSchedule = require('../../schema/WorkSchedule');
 
 module.exports = (io, connectedUsers) => {
     const controller = userController(io, connectedUsers);

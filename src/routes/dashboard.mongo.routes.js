@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
-const Request = require('../models/Request');
-const WorkSchedule = require('../models/WorkSchedule');
-const Attendance = require('../models/Attendance');
+const User = require('../schema/User');
+const Request = require('../schema/Request');
+const WorkSchedule = require('../schema/WorkSchedule');
+const Attendance = require('../schema/Attendance');
 
 // Get dashboard statistics
 router.get('/api/dashboard/stats', async (req, res) => {

@@ -1,4 +1,4 @@
-const User = require('../../models/User');
+const User = require('../../schema/User');
 
 module.exports = (io, connectedUsers) => {
     const getProfile = async (req, res) => {

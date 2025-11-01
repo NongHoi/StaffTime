@@ -1,7 +1,7 @@
-const MaterialIssuanceForm = require('../../models/MaterialIssuanceForm');
-const MaterialIssuance = require('../../models/MaterialIssuance');
-const Material = require('../../models/Material');
-const WorkSchedule = require('../../models/LegacyWorkSchedule');
+const MaterialIssuanceForm = require('../../schema/MaterialIssuanceForm');
+const MaterialIssuance = require('../../schema/MaterialIssuance');
+const Material = require('../../schema/Material');
+const WorkSchedule = require('../../schema/LegacyWorkSchedule');
 const ExcelJS = require('exceljs');
 
 // Create a grouped issuance form (single request containing many items)

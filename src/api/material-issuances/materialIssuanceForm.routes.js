@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('./materialIssuanceForm.controller');
+const controller = require('./materialIssuanceForm');
 const requireLogin = require('../../middlewares/requireLogin');
 const requireRole = require('../../middlewares/requireRole');
 
