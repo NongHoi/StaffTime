@@ -1,6 +1,6 @@
 const cron = require('node-cron');
-const WorkSchedule = require('../models/WorkSchedule');
-const User = require('../models/User');
+const WorkSchedule = require('../schema/WorkSchedule');
+const User = require('../schema/User');
 
 module.exports = (io, connectedUsers) => {
     console.log('Scheduler for reminders initialized.');

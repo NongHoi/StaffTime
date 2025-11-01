@@ -1,4 +1,4 @@
-const User = require('../../models/User');
+const User = require('../../schema/User');
 
 module.exports = (io, connectedUsers) => {
     // Helper function to send notification

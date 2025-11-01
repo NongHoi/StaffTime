@@ -1,5 +1,5 @@
-const Payroll = require('../../models/Payroll');
-const User = require('../../models/User');
+const Payroll = require('../../schema/Payroll');
+const User = require('../../schema/User');
 
 module.exports = (io, connectedUsers) => {
     const sendNotification = (userId, message) => {

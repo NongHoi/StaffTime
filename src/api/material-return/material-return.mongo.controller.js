@@ -1,5 +1,5 @@
-const MaterialIssuanceForm = require('../../models/MaterialIssuanceForm');
-const Material = require('../../models/Material');
+const MaterialIssuanceForm = require('../../schema/MaterialIssuanceForm');
+const Material = require('../../schema/Material');
 
 // Get all issuance forms for return
 const getIssuanceFormsForReturn = async (req, res) => {

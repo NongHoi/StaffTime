@@ -1,6 +1,6 @@
-const User = require('../../models/User');
-const WorkSchedule = require('../../models/WorkSchedule');
-const Payroll = require('../../models/Payroll');
+const User = require('../../schema/User');
+const WorkSchedule = require('../../schema/WorkSchedule');
+const Payroll = require('../../schema/Payroll');
 
 // Lấy báo cáo giờ làm việc
 exports.getWorkingHoursReport = async (req, res) => {

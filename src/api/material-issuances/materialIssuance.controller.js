@@ -1,6 +1,6 @@
-const MaterialIssuance = require('../../models/MaterialIssuance');
-const Material = require('../../models/Material');
-const WorkSchedule = require('../../models/WorkSchedule');
+const MaterialIssuance = require('../../schema/MaterialIssuance');
+const Material = require('../../schema/Material');
+const WorkSchedule = require('../../schema/WorkSchedule');
 
 // Get all material issuances
 exports.getAllMaterialIssuances = async (req, res) => {

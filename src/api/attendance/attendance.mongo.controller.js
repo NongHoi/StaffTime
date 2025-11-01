@@ -1,5 +1,5 @@
-const Attendance = require('../../models/Attendance');
-const WorkSchedule = require('../../models/WorkSchedule');
+const Attendance = require('../../schema/Attendance');
+const WorkSchedule = require('../../schema/WorkSchedule');
 
 module.exports = (io, connectedUsers) => {
     // Helper function to send notification
